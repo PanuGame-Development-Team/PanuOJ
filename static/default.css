@@ -1,0 +1,149 @@
+a,a:visited,a:link{
+    text-decoration: none;
+    color: rgb(0,128,255);
+}
+a:hover{
+    text-decoration: underline;
+    color: rgb(0,64,255);
+}
+header{
+    background-color: rgb(0,128,255);
+    position: fixed;
+    margin: 0px;
+    border: 0px;
+    padding: 0px;
+    width: 100%;
+    left: 0px;
+    top: 0px;
+    height: 88px;
+}
+div#main{
+    font-family: Consolas,Courier,'Courier New',monospace;
+    position: relative;
+    top: 100px;
+    bottom: 120px;
+    left: 20%;
+    width: 60%;
+    padding-bottom: 100px;
+}
+pre{
+    background: rgba(0,0,0,0.01);
+    padding: 15px;
+    border: 1px solid rgba(0,0,0,0.2);
+    border-radius: 10px;
+}
+code{
+    font-family: Consolas,Courier,'Courier New',monospace;
+    height: auto;
+    width: auto;
+}
+h1#title{
+    font-family: Consolas,Courier,'Courier New',monospace;
+    color:white;
+    position: absolute;
+    width: 100%;
+}
+h3#title-username{
+    font-family: Consolas,Courier,'Courier New',monospace;
+    position: relative;
+    color: white;
+    text-decoration: underline;
+    text-align: center;
+    line-height: 48px;
+    height: 48px;
+    margin: 0px;
+}
+a#title-userlink{
+    font-family: Consolas,Courier,'Courier New',monospace;
+    position: relative;
+    float: right;
+    margin-right: 20px;
+    margin-top: 20px;
+    height: 48px;
+    width: auto;
+}
+table,tr,th,td{
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th,td{
+    min-width: 100px;
+}
+td{
+    padding-left: 20px;
+    padding-right: 20px;
+}
+#accepted{
+    background-color: #0080FF;
+    padding: 30px;
+    font-family: 'Bowlby One SC';
+    font-size: 50px;
+    color: white;
+    position: fixed;
+    width: 100%;
+    height: 100px;
+    text-align: center;
+    top: calc(50% - 80px);
+    right: 0;
+    z-index: 999;
+}
+#unaccepted{
+    background-color: #FF8000;
+    padding: 30px;
+    font-family: 'Bowlby One SC';
+    font-size: 50px;
+    color: white;
+    position: fixed;
+    width: 100%;
+    height: 100px;
+    text-align: center;
+    top: calc(50% - 80px);
+    right: 0;
+    z-index: 999;
+}
+#mask{
+    background-color: rgba(0,0,0,0.3);
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    z-index: 99;
+}
+.hidden{
+    display: none;
+    visibility: hidden;
+}
+.about{
+    color: #A0A0A0;
+}
+footer{
+    background-color: #FFFFFF;
+    position: fixed;
+    margin: 0px;
+    border: 0px;
+    padding: 0px;
+    width: 100%;
+    left: 0px;
+    bottom: 0px;
+    height: 100px;
+}
+
+div#main code{
+    border: 1px solid #0080FF;
+    background-color: rgba(0,128,255,0.1);
+    color: #0080FF;
+}
+form table,form td,form tr,form th{
+    border: 0px;
+}
+pre code{
+    border: 0px !important;
+    background-color: transparent !important;
+    color: black !important;
+}
+blockquote{
+    border-left: 5px solid rgba(0,128,255,0.3);
+    color: rgba(0,96,192,0.5)
+}
