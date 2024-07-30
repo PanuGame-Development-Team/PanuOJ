@@ -1,0 +1,12 @@
+instance
+__pycache__
+*.pyc
+db.sqlite3
+
+uids
+rids
+usermapping/
+users/
+userpage/
+0*/
+problem/

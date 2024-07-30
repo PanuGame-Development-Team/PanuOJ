@@ -1,0 +1,17 @@
+{% extends "_base.html" %}
+{% block contents %}
+<div class="row">
+    {% for mod in mods %}
+    {% if mod.use_mainpage %}
+    <div class="col-md-{{mod.width}} mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">来自模组{{mod.describe}}</h5>
+                {{mod.render_mainpage(sesdic)|safe}}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

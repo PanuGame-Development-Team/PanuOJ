@@ -1,0 +1,11 @@
+{% extends "_base.html" %}
+{% block contents %}
+<p>上传题目：题目文件应为一个zip格式的压缩包，无文件夹，包含title.txt,diff.txt,desc.md,time.txt,mem.txt的题目信息以及1.in 1.ans,2.in 2.ans...的测试数据。</p>
+
+<form action="" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+        <input type="file" name="data"/>
+    </div>
+    <button class="btn btn-primary" type="submit">提交</button>
+</form>
+{% endblock %}

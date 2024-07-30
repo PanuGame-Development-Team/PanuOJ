@@ -1,92 +1,81 @@
 import psutil
 import os,sys
 import io
-from log import Timer
 from threading import Thread
 from subprocess import Popen,PIPE
-dd = peak = 0
+from uuid import uuid4
+from comper import *
+from pickle import load
+from time import time
+runtime = peak = pid = 0
+class Timer:
+    def __init__(self):
+        self.start = time()
+    def getTimeDelta(self):
+        return time() - self.start
 timer = Timer()
-def do_c(options,name,argv,maxtime=1000,maxmem=512*1024*1024):
-    global dd,peak
+def do_c(options,testdata,same,maxtime=1000,maxmem=512*1024):#ms,kb
+    global runtime,peak,pid
     def test():
-        global dd,peak
+        global runtime,peak,pid
         peak = 0
-        while dd * 1000 < maxtime and state:
-            dd = timer.getTimeDelta() - td
+        while runtime * 1000 < maxtime and state:
+            runtime = timer.getTimeDelta() - timedelta
             try:
-                r = p.memory_info().rss
-                peak = r if r > peak else peak
+                rssmem = psutilTask.memory_info().rss/1024
+                peak = rssmem if rssmem > peak else peak
+                if peak > maxmem:
+                    break
             except:
                 continue
-        if p.is_running:
-            os.popen(f"killall test").read()
-    def same(a,b):
-        r = [i.strip() for i in a.strip("\n").split("\n")]
-        t = [i.strip() for i in b.strip("\n").split("\n")]
-        return r == t
-    if "--inans" in argv:
-        oe = "ans"
-    else:
-        oe = "out"
-    if "--namenum" in argv:
-        fileformat = "{name}{i}"
-    elif "--num" in argv:
-        fileformat = "{i}"
-    else:
-        fileformat = "{i}"
-    proc = Popen(options,shell=True,stdout=PIPE,stderr=PIPE,bufsize=-1)
-    proc.wait()
-    err = io.TextIOWrapper(proc.stderr,encoding='UTF-8')
-    err = err.read().strip("\n")
-    if err != "":
-        return [0.0,{1:["CE","0.0KB","0.0s"]}]
-    i = 1
-    l = 0
-    c = 0
-    rtans = {}
-    while os.path.exists(f"{fileformat.format(name=name,i=i)}.in") and os.path.exists(f"{fileformat.format(name=name,i=i)}.{oe}"):
-        os.popen(f"cp {fileformat.format(name=name,i=i)}.in {name}.in").read()
-        l += 1
-        td = timer.getTimeDelta()
-        t = Thread(target=test)
-        state = True
-        dd = 0
-        p = psutil.Popen(f"./test < {name}.in > {name}.out",shell=True)
-        t.start()
-        p.wait()
-        state = False
-        t.join()
-        if dd * 1000 < maxtime:
-            if os.path.exists(f"{name}.out"):
+        if psutilTask.is_running():
+            os.popen(f"kill -9 {pid}").read()
+    try:
+        proc = Popen(options,shell=True,stdout=PIPE,stderr=PIPE,bufsize=-1)
+        proc.wait()
+        err = io.TextIOWrapper(proc.stderr,encoding='UTF-8')
+        err = err.read().strip("\n")
+        if err != "":
+            return [0.0,[["CE","Unknown","Unknown"]]]
+        accnt = 0
+        rtans = []
+        for data in testdata:
+            uurand = uuid4().hex
+            with open(f"{uurand}.in","w") as file:
+                file.write(data[0])
+            timedelta = timer.getTimeDelta()
+            testThread = Thread(target=test)
+            state = True
+            runtime = 0
+            psutilTask = psutil.Popen(f"./test < {uurand}.in > {uurand}.out",shell=True)
+            pid = psutilTask.pid
+            testThread.start()
+            psutilTask.wait()
+            state = False
+            testThread.join()
+            mt = [f"{round(peak,2)}KB" if peak != 0 else "Unknown",f"{round(runtime,2)}s"]
+            if runtime * 1000 < maxtime:
                 if peak <= maxmem:
-                    with open(f"{name}.out") as file:
-                        with open(f"{fileformat.format(name=name,i=i)}.{oe}") as file2:
-                            if same(file.read(),file2.read()):
-                                rtans[i] = ["AC",f"{round(peak/1024,2)}KB",f"{round(dd,2)}s"]
-                                c += 1
+                    if os.path.exists(f"{uurand}.out"):
+                        with open(f"{uurand}.out") as file:
+                            if same(file.read(),data[1]):
+                                rtans.append(["AC"] + mt)
+                                accnt += 1
                             else:
-                                rtans[i] = ["WA",f"{round(peak/1024,2)}KB",f"{round(dd,2)}s"]
+                                rtans.append(["WA"] + mt)
+                    else:
+                        rtans.append(["IE"] + mt)
                 else:
-                    rtans[i] = ["MLE",f"{round(peak/1024,2)}KB",f"{round(dd,2)}s"]
+                    rtans.append(["MLE"] + mt)
             else:
-                rtans[i] = ["NOFE",f"{round(peak/1024,2)}KB",f"{round(dd,2)}s"]
-        else:
-            rtans[i] = ["TLE",f"{round(peak/1024,2)}KB",f"{round(dd,2)}s"]
-        i += 1
-    os.popen("rm test").read()
-    if l > 0:
-        if os.path.isfile(f"{name}.in"):
-            os.popen(f"rm {name}.in").read()
-        if os.path.isfile(f"{name}.out"):
-            os.popen(f"rm {name}.out").read()
-        return [c/l*100,rtans]
-    else:
-        return [0.0,{1:["UKE","0.0KB","0.0s"]}]
-# while not os.path.isfile("OK"):
-#     time.sleep(0.01)
-ans = do_c(sys.argv[1],sys.argv[2],sys.argv)
-print(ans[0])
-i = 1
-while(i in ans[1].keys()):
-    print(" ".join(ans[1][i]))
-    i += 1
+                rtans.append(["TLE"] + mt)
+        os.popen("rm test").read()
+        return [accnt/len(testdata)*100,rtans]
+    except Exception as e:
+        print(e)
+        return [0.0,[["UKE","Unknown","Unknown"]]]
+with open("data.pk","rb") as file:
+    data = load(file)
+os.popen("rm data.pk").read()
+ans = do_c("g++ test.cpp -o test -lm -O2 -std=c++14 -w",data,eval(sys.argv[1]),eval(sys.argv[2]),eval(sys.argv[3]))
+print(ans)

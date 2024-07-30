@@ -1,0 +1,15 @@
+{%extends "_base.html"%}
+{%block contents%}
+{% import "bootstrap/wtf.html" as wtf %}
+<center>
+    <div style="max-width:300px;text-align:left;">
+        <form action="" method="POST">
+            <center><img style="width:100px;" src="/static/favicon.png"/></center>
+            {{ wtf.form_field(form.username)}}
+            {{ wtf.form_field(form.password)}}
+            <button type="submit" class="btn btn-primary">提交</button>
+            {{ form.hidden_tag() }}
+        </form>
+    </div>
+</center>
+{%endblock%}

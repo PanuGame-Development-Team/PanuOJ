@@ -1,0 +1,38 @@
+{% extends "_base.html" %}
+{% block contents %}
+<center><h1>{{problem.title}}</h1></center>
+<span class="float-right">内存:{{problem.mem}}KB 时间:{{problem.time}}ms</span>
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" id="defaulttab" href="#problem" role="tab">题目</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#submit" role="tab">提交</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane fade" id="problem" role="tabpanel">
+        {{problem.markdown|render_markdown|safe}}
+    </div>
+    <div class="tab-pane fade" id="submit" role="tabpanel">
+        <form action="" method="post">
+            <textarea id="codespace" name="code"></textarea>
+            <button class="btn btn-primary mt-3" type="submit">提交</button>
+        </form>
+        <script>
+            var editor = CodeMirror.fromTextArea(document.getElementById("codespace"),{
+                lineNumbers: true,
+                indentUnit: 4,
+                styleActiveLine: true,
+                matchBrackets: true,
+                mode: "text/x-c++src",
+                lineWrapping: true,
+                indentWithTabs: true
+            });
+        </script>
+    </div>
+</div>
+<script>
+    document.getElementById("defaulttab").click();
+</script>
+{% endblock contents %}

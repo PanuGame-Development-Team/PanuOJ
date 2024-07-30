@@ -1,36 +1,4 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8"/>
-        <title>{{title}}</title>
-        <link rel="stylesheet" href="/static/default.css"/>
-        <link rel="stylesheet" href="/static/code.css"/>
-        <link rel="icon" href="/static/favicon.png"/>
-        <link rel="stylesheet" href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css">
-        <script defer src="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.js"></script>
-        <script defer>
-            var katex_config = {
-                delimiters: 
-                [
-                    {left: "$$", right: "$$", display: true},
-                    {left: "$", right: "$", display: false}
-                ]
-            };
-        </script>
-        <script defer src="https://cdn.bootcss.com/KaTeX/0.11.1/contrib/auto-render.min.js" onload="renderMathInElement(document.body,katex_config)""></script>
-    </head>
-    <body>
-        <div id="main">
-            {% with messages = get_flashed_messages() %}{% if messages %}<ul>{% for message in messages %}<li>{{message}}</li>{% endfor %}</ul>{% endif %}{% endwith %}
-            {{main|safe}}
-        </div>
-        <footer><hr/><center class="about">本网站由<a href="https://github.com/PanuGame-Development-Team">PanuGame-Development-Team</a>开发维护<br/>
-        在此感谢<a href="https://github.com/immccn123">Imken Luo</a>提供技术支持<br/>
-        如有问题可以发送邮件到<a href="mailto:23599488@qq.com">23599488@qq.com</a></center></footer>
-        <header>
-            <center><h1 id="title">{{header}}</h1></center>
-            <a id="title-userlink" href="{{userurl}}"><h3 id="title-username">{{username}}</h3></a>
-            <a id="title-userlink" href="{{otherurl}}"><h3 id="title-username">{{otherfunc}}</h3></a>
-        </header>
-    </body>
-</html>
+{% extends "_base.html" %}
+{% block contents %}
+{{htmltext|safe}}
+{% endblock %}

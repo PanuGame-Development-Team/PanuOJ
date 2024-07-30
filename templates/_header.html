@@ -1,0 +1,21 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <a class="navbar-brand" href="/">PanuOJ</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link" href="/">主页</a></li>
+            <li class="nav-item"><a class="nav-link" href="/problems/">题库</a></li>
+            {%for mod in mods%}
+            {%if mod.use_headers%}
+            <li class="nav-item"><a class="nav-link" href="/mod/{{mod.name}}">{{mod.describe}}</a></li>
+            {%endif%}
+            {%endfor%}
+            <li class="nav-item"><a class="nav-link" href="/about/">关于我们</a></li>
+        </ul>
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="{% if logged_in %}/logout{% else %}/login/{% endif %}">{% if logged_in %}{{user.username}}{% else %}登录/注册{% endif %}</a></li>
+        </ul>
+    </div>
+</nav>

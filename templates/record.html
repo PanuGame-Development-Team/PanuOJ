@@ -1,50 +1,29 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8"/>
-        <title>{{title}}</title>
-        <link rel="stylesheet" href="/static/default.css"/>
-        <link rel="icon" href="/static/favicon.png"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-    </head>
-    <body>
-        <div id="main">
-            <center>{{main|safe}}</center>
-            <footer>
-            <hr/>
-            <center class="about">本网站由<a href="https://github.com/PanuGame-Development-Team">PanuGame-Development-Team</a>开发维护<br/>
-            在此感谢<a href="https://github.com/immccn123">Imken Luo</a>提供技术支持<br/>
-            如有问题可以发送邮件到<a href="mailto:23599488@qq.com">23599488@qq.com</a></center></footer>
-        </div>
-        <header>
-            <center><h1 id="title">{{runid}}评测结果</h1></center>
-            <a id="title-userlink" href="{{userurl}}"><h3 id="title-username">{{username}}</h3></a>
-            <a id="title-userlink" href="{{otherurl}}"><h3 id="title-username">{{otherfunc}}</h3></a>
-        </header>
-        <div class="animate__animated hidden" id="mask"></div>
-        <div class="animate__animated hidden" id="{{status}}">
-            <i>{{poptext}}</i>
-        </div>
-        <script>
-            function displayAnimate(){
-                var el = document.getElementById('{{status}}');
-                var mask = document.getElementById('mask');
-                el.classList.remove('hidden');
-                mask.classList.remove('hidden');
-                mask.classList.add('animate__fadeIn');
-                el.classList.add('animate__zoomInUp');
-                setTimeout(() => {
-                    mask.classList.add('animate__fadeOut');
-                    el.classList.add('animate__zoomOut');
-                    setTimeout(() => {
-                        mask.classList.add('hidden');
-                        el.classList.add('hidden');
-                    }, 1050);
-                }, 3000);
-            }
-            displayAnimate();
-        </script>
-    </body>
-</html>
+{%extends "_base.html"%}
+{%block contents%}
+<link href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<div class="animate__animated hidden" id="mask"></div>
+<div class="animate__animated hidden" id="{{status}}">
+    <i>{{status|capitalize}}</i>
+</div>
+<script>
+    function displayAnimate(){
+        var el = document.getElementById('{{status}}');
+        var mask = document.getElementById('mask');
+        el.classList.remove('hidden');
+        mask.classList.remove('hidden');
+        mask.classList.add('animate__fadeIn');
+        el.classList.add('animate__zoomInUp');
+        setTimeout(() => {
+            mask.classList.add('animate__fadeOut');
+            el.classList.add('animate__zoomOut');
+            setTimeout(() => {
+                mask.classList.add('hidden');
+                el.classList.add('hidden');
+            }, 1050);
+        }, 3000);
+    }
+    displayAnimate();
+</script>
+{{table|render_table|safe}}
+{%endblock%}
