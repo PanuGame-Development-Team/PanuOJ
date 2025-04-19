@@ -1,4 +1,4 @@
-# Patient错误日志
+# PanuOJ
 ### 代码构建环境
 * 操作系统：Mint 22.1 x64 内核:6.8.0-53-generic
 * Python 3.12.3
