@@ -1,0 +1,72 @@
+{% extends "_base.html" %}
+{% block content %}
+<center><h1>{{problem.title}}</h1></center>
+<span class="float-right">内存:{{problem.memory_limit}}KB 时间:{{problem.time_limit}}ms</span>
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" id="defaulttab" href="#problem" role="tab">题目</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#submit" role="tab">提交</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane fade" id="problem" role="tabpanel">
+        {% if problem.background %}
+        <h3>背景</h3>
+        {{problem.background|render_markdown|safe}}
+        {% endif %}
+        {% if problem.description %}
+        <h3>题目描述</h3>
+        {{problem.description|render_markdown|safe}}
+        {% endif %}
+        {% if problem.inputformat %}
+        <h3>输入格式</h3>
+        {{problem.inputformat|render_markdown|safe}}
+        {% endif %}
+        {% if problem.outputformat %}
+        <h3>输出格式</h3>
+        {{problem.outputformat|render_markdown|safe}}
+        {% endif %}
+        {% if problem.sample %}
+        <h3>样例</h3>
+        {%for input,output in jsonload(problem.sample)%}
+        <div class="row">
+            <div class="col-md-6">
+                <h4>输入</h4>
+                <pre><code>{{input|safe}}</code></pre>
+            </div>
+            <div class="col-md-6">
+                <h4>输出</h4>
+                <pre><code>{{output|safe}}</code></pre>
+            </div>
+        </div>
+        {% else %}
+        <p>暂无样例</p>
+        {% endfor %}
+        {% endif %}
+        {% if problem.hint %}
+        <h3>提示</h3>
+        {{problem.hint|render_markdown|safe}}
+        {% endif %}
+    </div>
+    <div class="tab-pane fade" id="submit" role="tabpanel">
+        <form action="/submit/{{problem.id}}" method="post">
+            <select class="form-control" style="width: 10rem;" name="language">
+                {% for lang in LANGUAGES %}
+                <option value="{{lang}}">{{lang}}</option>
+                {% endfor %}
+            </select>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" id="O2" name="O2" value="O2">
+                <label class="form-check-label" for="O2">氧气加持！！！</label>
+            </div>
+            <textarea class="form-control" name="code" rows="13"></textarea>
+            <button class="btn btn-primary mt-3" type="submit">提交</button>
+        </form>
+    </div>
+</div>
+<script>
+    document.getElementById("defaulttab").click();
+</script>
+{% endblock %}

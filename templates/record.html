@@ -1,0 +1,96 @@
+{%extends "_base.html"%}
+{%block content%}
+<link href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<div class="animate__animated hidden" id="mask"></div>
+<style>
+#AC{
+    background-color: #0080FF;
+    padding: 30px;
+    font-family: 'Bowlby One SC';
+    font-size: 50px;
+    color: white;
+    position: fixed;
+    width: 100%;
+    height: 140px;
+    text-align: center;
+    top: calc(50% - 80px);
+    right: 0;
+    z-index: 1032;
+}
+#mask{
+    background-color: rgba(0,0,0,0.3);
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    z-index: 1031;
+}
+.hidden{
+    display: none;
+    visibility: hidden;
+}
+</style>
+<div class="animate__animated hidden" id="AC">
+    <i>Accepted!</i>
+</div>
+<script>
+    function displayAnimate(){
+        var el = document.getElementById('AC');
+        var mask = document.getElementById('mask');
+        el.classList.remove('hidden');
+        mask.classList.remove('hidden');
+        mask.classList.add('animate__fadeIn');
+        el.classList.add('animate__zoomInUp');
+        setTimeout(() => {
+            mask.classList.add('animate__fadeOut');
+            el.classList.add('animate__zoomOut');
+            setTimeout(() => {
+                mask.classList.add('hidden');
+                el.classList.add('hidden');
+            }, 1050);
+        }, 3000);
+    }
+    if('{{record.result}}'=='AC')
+    {
+        displayAnimate();
+    }
+</script>
+<div class="row">
+    <div class="col-sm-4">
+        <ul class="list-group">
+            <li class="list-group-item">评测结果：<span class="float-right">{{record.result}}</span></li>
+            <li class="list-group-item">评测用时：<span class="float-right">{{record.runtime}}</span></li>
+            <li class="list-group-item">评测内存：<span class="float-right">{{record.memory}}</span></li>
+            <li class="list-group-item">编程语言：<span class="float-right">{{record.language}}{%if record.O2%} O2{%endif%}</span></li>
+            <li class="list-group-item">代码长度：<span class="float-right">{{record.code|length}}</span></li>
+        </ul>
+    </div>
+    <div class="col-sm-8">
+        {%if record.result != "CE" and record.result != "WAITING"%}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>监测次数</th>
+                    <th>结果</th>
+                    <th>内存</th>
+                    <th>用时</th>
+                </tr>
+            </thead>
+            {%for row in jsonload(record.detail)%}
+            <tr>
+                <td>{{row[0]}}</td>
+                <td><font color="{%if row[1]=='AC'%}#0080FF{%else%}#FF8000{%endif%}">{{row[1]}}</font></td>
+                <td>{{row[2]}} kB</td>
+                <td>{{row[3]}} ms</td>
+            </tr>
+            {%endfor%}
+        </table>
+        {%else%}
+        结果未知或不可见。
+        {%endif%}
+    </div>
+</div>
+{%endblock%}

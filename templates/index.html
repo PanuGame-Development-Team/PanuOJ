@@ -1,0 +1,20 @@
+{% extends '_base.html' %}
+{% block content %}
+<div class="toast" data-autohide="false" style="position: fixed; top: 6rem; left: 1rem;">
+    <div class="toast-header">
+        <strong class="mr-auto">题目传输</strong>
+    </div>
+    <div class="toast-body">
+        <form>
+            <input type="text" class="form-control mb-3" id="pid" placeholder="请输入题目ID">
+            <button type="button" class="btn btn-primary" onclick="window.location.href='/problems/'+$('#pid').val() + '/'">跳转</button>
+            <button type="button" class="btn btn-success" onclick="window.location.href='/problems/random/'">随机</button>
+        </form>
+    </div>
+    <script>
+        $(document).ready(function (){
+            $('.toast').toast('show');
+        });
+    </script>
+</div>
+{%endblock%}

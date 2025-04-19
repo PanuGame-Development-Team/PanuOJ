@@ -1,0 +1,63 @@
+{%extends "_base.html"%}
+{%block content%}
+<center>
+    <img src="/static/PGDT.jpg"/>
+    <h1>后台管理</h1>
+    <a href="/admin/user/" class="btn btn-primary mr-3">用户</a>
+    <a href="/admin/data/" class="btn btn-primary">数据</a>
+</center>
+<div>
+    <span>管理日志</span>
+    <ul class="list-group" id="logging"></ul>
+</div>
+<script>
+    var category=1,limit=30;
+    const update_logging = () => {
+        fetch(`/api/logging/?category=${category}&limit=${limit}`,{credentials:"include"}).then(res=>{
+            return res.json();
+        }).then(data => {
+            if(data.status != "OK")
+            {
+               console.log(data.status); 
+            }
+            else
+            {
+                var i,li;
+                var ul = document.getElementById("logging");
+                ul.innerHTML = "";
+                for(i=0;i<data.data.length;++i)
+                {
+                    li = document.createElement("li");
+                    li.className = "list-group-item";
+                    li.innerHTML = data.data[i].describe;
+                    if(data.data[i].uid!=-1||data.data[i].data_id!=-1)
+                    {
+                        li.innerHTML += "——";
+                    }
+                    if(data.data[i].uid!=-1)
+                    {
+                        li.innerHTML += "用户：" + data.data[i].uid;
+                        if(data.data[i].data_id!=-1)
+                        {
+                            li.innerHTML += "，数据：" + data.data[i].data_id;
+                        }
+                    }
+                    else if(data.data[i].data_id!=-1)
+                    {
+                        li.innerHTML += "数据：" + data.data[i].data_id;
+                    }
+                    {%for category,text in CATEGORIES.items()%}
+                    if(data.data[i].category == "{{category}}")
+                    {
+                        li.className += " list-group-item-{{SHOW_COLOR[category]}}";
+                        li.innerHTML += "<span class='float-right'>{{text}}</span>";
+                    }
+                    {%endfor%}
+                    ul.appendChild(li);
+                }
+            }
+        });
+    };
+    update_logging();
+</script>
+{%endblock%}

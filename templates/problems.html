@@ -1,0 +1,23 @@
+{% extends "_base.html" %}
+{% block content %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>标题</th>
+            <th>时间 / 空间</th>
+            <th>通过 / 提交</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%for problem in paginate.items%}
+        <tr>
+            <td><a href="/problems/{{problem.id}}"><font color="#000">{{problem.id}}</font></a></td>
+            <td><a href="/problems/{{problem.id}}"><font color="#000">{{problem.title}}</font></a></td>
+            <td>{{problem.time_limit}}ms / {{problem.memory_limit}}kB</td>
+            <td>{{problem.accepted}} / {{problem.submit}}</td>
+        </tr>
+        {%endfor%}
+    </tbody>
+</table>
+{%endblock%}

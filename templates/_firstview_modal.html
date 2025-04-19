@@ -1,0 +1,38 @@
+{%if firstvisit%}
+<div class="modal fade" id="firstvisitmodal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="firstvisitmodaltitle"></h5>
+            <button type="button" class="close" data-dismiss="modal">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="firstvisitmodalbody"></div>
+        <div class="modal-footer d-flex justify-content-center">
+            <button type="button" class="btn btn-primary" onclick="nextPage()">Next</button>
+        </div>
+    </div>
+    </div>
+</div>
+<script>
+    $('#firstvisitmodal').modal({
+        backdrop: 'static',
+        keyboard: false
+    });
+    var text = ["<center><img class='w-50' src='/static/PGDT.jpg'/></center>",`{%include "LICENSE.html"%}`,"我们不会保存您的密码、用户隐私信息，一切收集到的数据以哈希形式存储。同样，管理员也无法通过管理页面获取您的信息。","如果您发现任何问题，请联系<a href='https://github.com/PanuGame-Development-Team'>我们的Github</a>以获取支持与更新。<center><img class='w-50' src='/static/PGDT.jpg'/></center>"];
+    var title = ["我们是PanuGame-Development-Team","以下是我们的开源协议","我们尊重您的隐私与自由","欢迎使用PanuGame软件以获得更好的体验"];
+    var index = -1;
+    const nextPage = function(){
+        index += 1;
+        if(index >= text.length){
+            $('#firstvisitmodal').modal("hide");
+        }
+        else{
+            $('#firstvisitmodaltitle').html(title[index]);
+            $('#firstvisitmodalbody').html(text[index]);
+        }
+    }
+    nextPage();
+</script>
+{%endif%}

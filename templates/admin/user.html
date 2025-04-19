@@ -1,0 +1,49 @@
+{%extends "_base.html"%}
+{%block content%}
+<ul class="pagination">
+    <li class="page-item"><a class="page-link" href="/admin/user/?page=1"><span>&laquo;</span></a></li>
+    {%if pagecnt <= 5%}
+    {%set start = 1%}
+    {%set end = pagecnt%}
+    {%elif curpage <= 3%}
+    {%set start = 1%}
+    {%set end = 5%}
+    {%elif curpage >= pagecnt - 2%}
+    {%set start = pagecnt - 4%}
+    {%set end = pagecnt%}
+    {%else%}
+    {%set start = curpage - 2%}
+    {%set end = curpage + 2%}
+    {%endif%}
+    {%for i in range(start,end+1)%}
+    <li class="page-item{%if i==curpage%} active{%endif%}"><a class="page-link" href="/admin/user/?page={{i}}">{{i}}</a></li>
+    {%endfor%}
+    <li class="page-item"><a class="page-link" href="/admin/user/?page={{pagecnt}}"><span>&raquo;</span></a></li>
+</ul>
+<table class="table table-striped text-monospace">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>用户名</th>
+            <th>权限</th>
+            <th>创建时间</th>
+            <th>最近登录时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%for user in users%}
+        <tr>
+            <td>{{user.id}}</td>
+            <td>{{user.username}}</td>
+            <td>{%if split_access(user)["read"]%}R{%else%}-{%endif%}{%if split_access(user)["update"]%}U{%else%}-{%endif%}{%if split_access(user)["admin"]%}A{%else%}-{%endif%}</td>
+            <td>{{user.created_time.strftime("%Y/%m/%d %H:%M")}}</td>
+            <td>{{user.latest_login_time.strftime("%Y/%m/%d %H:%M")}}</td>
+            <td>
+                <a href="/admin/user/edit/{{user.id}}/" class="btn btn-primary">编辑</a>
+            </td>
+        </tr>
+        {%endfor%}
+    </tbody>
+</table>
+{%endblock%}
