@@ -17,4 +17,47 @@
         });
     </script>
 </div>
+<ul class="list-group">
+    <span>公告栏</span>
+    {% for anno in announcements %}
+    <li class="list-group-item">
+        <a href="#" onclick="$('#anno-{{ anno.id }}').modal('show');">{{ anno.title }}</a>
+        <span class="text-muted float-right">{{ anno.created_time.strftime('%Y/%m/%d %H:%M') }}</span>
+    </li>
+    <div class="modal fade" id="anno-{{ anno.id }}">
+        <div class="modal-lg modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ anno.title }}</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <link rel="stylesheet" href="/static/default.css">
+                    <link rel="stylesheet" href="/static/code.css">
+                    {{ anno.content|render_markdown|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <li class="list-group-item">
+        暂无公告
+    </li>
+    {% endfor %}
+</ul>
+<script>
+    $(document).ready(function(){
+        var i,ls=document.getElementsByClassName("modal-body");
+        for(i=0;i<ls.length;++i)
+        {
+            renderMathInElement(ls[i],{
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ],
+                throwOnError : false
+            });
+        }
+    });
+</script>
 {%endblock%}

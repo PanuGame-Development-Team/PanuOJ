@@ -9,6 +9,7 @@ flask-sqlalchemy = "*"
 flask-migrate = "*"
 requests = "*"
 pymysql = "*"
+markdown = "*"
 
 [dev-packages]
 

@@ -1,9 +1,9 @@
 APP_NAME = "PanuOJ-Frontend"
-APP_VERSION = "1.0.0-dev"
+APP_VERSION = "3.0.0-250422-alpha"
 APP_VERSYM = "Ambitious Aristocrat"
 HOST = "127.0.0.1"
 PORT = 7695
-CATEGORY = {0:"DEBUG",1:"INFO",2:"WARNING",3:"SUSPICIOUS",4:"ERROR",5:"CRITICAL"}
+CATEGORY = {0:"DEBUG",1:"INFO",2:"SUSPICIOUS",3:"WARNING",4:"ERROR",5:"CRITICAL"}
 S2NCATEGORY = {v:k for k,v in CATEGORY.items()}
 SHOW_COLOR = {0:"secondary",1:"info",2:"warning",3:"warning",4:"danger",5:"danger"}
 ACCESS = {"VIEW":1,"SUBMIT":2,"ADMIN":4}

@@ -1,0 +1,22 @@
+a,a:visited,a:link{
+    text-decoration: none;
+    color: rgb(0,128,255);
+}
+a:hover{
+    text-decoration: underline;
+    color: rgb(0,64,255);
+}
+code{
+    border: 1px solid #0080FF;
+    background-color: rgba(0,128,255,0.1);
+    color: #0080FF;
+}
+pre code{
+    border: 0px !important;
+    background-color: transparent !important;
+    color: black !important;
+}
+blockquote{
+    border-left: 5px solid rgba(0,128,255,0.3);
+    color: rgba(0,96,192,0.5)
+}

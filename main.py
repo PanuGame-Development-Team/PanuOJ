@@ -19,9 +19,15 @@ for i in judgers:
     judgers[i].start()
 Thread(target=distribute_loop).start()
 @app.route("/",methods=["GET"])
-@ACCESS_REQUIRE_HTML(["VIEW"])
-def index(ses,user):
-    return render_template("index.html",**default_dict(ses[1],request,user))
+def index():
+    ses = readSession(request.cookies)
+    if ses[0] == -1:
+        return redirect("/login/")
+    user = User.query.get(ses[0])
+    if not user.access & ACCESS["VIEW"]:
+        abort(403)
+    announcements = Announcement.query.all()
+    return render_template("index.html",announcements=announcements,**default_dict(ses[1],request,user))
 @app.route("/login",methods=["GET","POST"])
 @app.route("/login/",methods=["GET","POST"])
 def login():
@@ -70,7 +76,7 @@ def login():
 def problems(ses,user):
     page = int(request.args.get("page",1))
     paginate = Problem.query.paginate(page=page,per_page=30,max_per_page=30)
-    return render_template("problems.html",paginate=paginate,**default_dict(ses[1],request,user))
+    return render_template("problems.html",page=page,paginate=paginate,**default_dict(ses[1],request,user))
 @app.route("/problems/<int:pid>",methods=["GET"])
 @app.route("/problems/<int:pid>/",methods=["GET"])
 @ACCESS_REQUIRE_HTML(["VIEW"])
@@ -130,6 +136,20 @@ def record(ses,user,rid):
             return redirect("/problems/")
     else:
         abort(404)
+@app.route("/judgerstatus",methods=["GET"])
+@app.route("/judgerstatus/",methods=["GET"])
+@ACCESS_REQUIRE_HTML(["VIEW"])
+def judgerstatus(ses,user):
+    stat = {}
+    for judger in judgers:
+        if judgers[judger].judger_online:
+            if judgers[judger].judger_busy:
+                stat[judger] = "busy"
+            else:
+                stat[judger] = "idle"
+        else:
+            stat[judger] = "offline"
+    return render_template("judgerstatus.html",stat=stat,**default_dict(ses[1],request,user))
 @app.route("/logout",methods=["GET"])
 @app.route("/logout/",methods=["GET"])
 def logout():

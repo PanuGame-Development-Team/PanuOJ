@@ -12,6 +12,8 @@
 </ul>
 <div class="tab-content">
     <div class="tab-pane fade" id="problem" role="tabpanel">
+        <link rel="stylesheet" href="/static/default.css">
+        <link rel="stylesheet" href="/static/code.css">
         {% if problem.background %}
         <h3>背景</h3>
         {{problem.background|render_markdown|safe}}
@@ -68,5 +70,14 @@
 </div>
 <script>
     document.getElementById("defaulttab").click();
+    $(document).ready(function(){
+        renderMathInElement(document.getElementById("problem"), {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false}
+            ],
+            throwOnError : false
+        });
+    });
 </script>
 {% endblock %}

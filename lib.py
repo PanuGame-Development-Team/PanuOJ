@@ -96,3 +96,5 @@ def ACCESS_REQUIRE_HTML(access):
                 return redirect("/login/")
         return ACCESS_REQUIRE_HANDLER
     return ACCESS_REQUIRE_DECORATOR
+def uuidgen():
+    return _uuid().hex

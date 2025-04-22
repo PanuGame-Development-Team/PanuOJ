@@ -4,6 +4,7 @@ from model import *
 from lib import *
 from constances import *
 from settings import *
+from zipfile import ZipFile
 app = Blueprint("admin","admin",url_prefix="/admin")
 @app.route("/",methods=["GET"])
 @ACCESS_REQUIRE_HTML(["ADMIN"])
@@ -17,16 +18,22 @@ def user(ses,user):
     pagination = User.query.paginate(page=curpage,per_page=30,max_per_page=30)
     pagecnt = pagination.pages
     users = pagination.items
-    return render_template("admin/user.html",headertype="admin-user",curpage=curpage,pagecnt=pagecnt,users=users,**default_dict(ses[1],request,user))
-@app.route("/data",methods=["GET"])
-@app.route("/data/",methods=["GET"])
+    return render_template("admin/user.html",curpage=curpage,pagecnt=pagecnt,users=users,**default_dict(ses[1],request,user))
+@app.route("/problem",methods=["GET"])
+@app.route("/problem/",methods=["GET"])
 @ACCESS_REQUIRE_HTML(["ADMIN"])
-def data(ses,user):
+def problem(ses,user):
     curpage = int(request.args.get("page",1))
-    pagination = Data.query.paginate(page=curpage,per_page=30,max_per_page=30)
+    pagination = Problem.query.paginate(page=curpage,per_page=30,max_per_page=30)
     pagecnt = pagination.pages
-    datas = pagination.items
-    return render_template("admin/data.html",headertype="admin-data",curpage=curpage,pagecnt=pagecnt,datas=datas,**default_dict(ses[1],request))
+    problems = pagination.items
+    return render_template("admin/problem.html",curpage=curpage,pagecnt=pagecnt,problems=problems,**default_dict(ses[1],request,user))
+@app.route("/announcement",methods=["GET"])
+@app.route("/announcement/",methods=["GET"])
+@ACCESS_REQUIRE_HTML(["ADMIN"])
+def announcement(ses,user):
+    announcements = Announcement.query.all()
+    return render_template("admin/announcement.html",announcements=announcements,**default_dict(ses[1],request,user))
 @app.route("/user/edit/<int:uid>",methods=["GET","POST"])
 @app.route("/user/edit/<int:uid>/",methods=["GET","POST"])
 @ACCESS_REQUIRE_HTML(["ADMIN"])
@@ -40,10 +47,10 @@ def user_edit(ses,user,uid):
             access = 0
             if request.form["password"]:
                 aduser.password = generate_password_hash(request.form["password"])
-            if request.form.get("read",None) == "on":
-                access |= ACCESS["READ"]
-            if request.form.get("update",None) == "on":
-                access |= ACCESS["UPDATE"]
+            if request.form.get("view",None) == "on":
+                access |= ACCESS["VIEW"]
+            if request.form.get("submit",None) == "on":
+                access |= ACCESS["SUBMIT"]
             if request.form.get("admin",None) == "on":
                 access |= ACCESS["ADMIN"]
             aduser.access = access
@@ -55,29 +62,123 @@ def user_edit(ses,user,uid):
             return redirect("/admin/user/")
         else:
             flash("表单信息不全","danger")
-            return redirect("/admin/user/edit/"+str(uid)+"/")
-    return render_template("admin/user_edit.html",headertype="admin-user-edit",aduser=aduser,**default_dict(ses[1],request))
-@app.route("/data/edit/<int:dataid>",methods=["GET","POST"])
-@app.route("/data/edit/<int:dataid>/",methods=["GET","POST"])
+            return redirect("/admin/user/edit/" + str(uid) + "/")
+    return render_template("admin/user_edit.html",aduser=aduser,**default_dict(ses[1],request,user))
+@app.route("/problem/edit/<int:pid>",methods=["GET","POST"])
+@app.route("/problem/edit/<int:pid>/",methods=["GET","POST"])
+@app.route("/problem/add",methods=["GET","POST"])
+@app.route("/problem/add/",methods=["GET","POST"])
 @ACCESS_REQUIRE_HTML(["ADMIN"])
-def data_edit(ses,user,dataid):
-    addata = Data.query.get(dataid)
-    if addata is None:
-        flash("数据未找到","danger")
-        return redirect("/admin/data/")
+def problem_edit(ses,user,pid=None):
+    if pid is None:
+        adpro = Problem()
+        adpro.title = ""
+        adpro.time_limit = 1000
+        adpro.memory_limit = 65536
+        adpro.background = ""
+        adpro.description = ""
+        adpro.inputformat = ""
+        adpro.outputformat = ""
+        adpro.sample = "[]"
+        adpro.hint = ""
+        adpro.testcases_zip = ""
+        adpro.testcases = 0
+    else:
+        adpro:Problem = Problem.query.get(pid)
+        if adpro is None:
+            flash("题目未找到","danger")
+            return redirect("/admin/problem/")
     if request.method == "POST":
-        if lin(["machine_type","garage_id","error_id","detail","errdate"],request.form):
-            addata.machine_type = request.form["machine_type"]
-            addata.garage_id = request.form["garage_id"]
-            addata.error_id = request.form["error_id"]
-            addata.detail = request.form["detail"]
-            addata.errdate = datetime.strptime(request.form["errdate"],"%Y-%m-%d")
-            db.session.add(addata)
+        if lin(["title","time_limit","memory_limit","background","description","inputformat","outputformat","sample","hint"],request.form):
+            try:
+                adpro.time_limit = int(request.form["time_limit"])
+                adpro.memory_limit = int(request.form["memory_limit"])
+                adpro.sample = json.dumps(json.loads(request.form["sample"]))
+            except:
+                flash("时间限制或内存限制格式错误","danger")
+                return redirect("/admin/problem/edit/" + str(pid) + "/")
+            adpro.title = request.form["title"]
+            adpro.background = request.form["background"]
+            adpro.description = request.form["description"]
+            adpro.inputformat = request.form["inputformat"]
+            adpro.outputformat = request.form["outputformat"]
+            adpro.hint = request.form["hint"]
+            if request.files.get("testcases_zip",None):
+                try:
+                    filename = "testcases/" + uuidgen() + ".zip"
+                    request.files["testcases_zip"].save(filename)
+                    zipfile = ZipFile(filename)
+                    i = 1
+                    namelist = zipfile.namelist()
+                    while f"test{i}.in" in namelist and f"test{i}.ans" in namelist:
+                        i += 1
+                    adpro.testcases = i - 1
+                    adpro.testcases_zip = filename
+                except:
+                    flash("测试数据格式错误","danger")
+                    return redirect("/admin/problem/edit/" + str(pid) + "/")
+            db.session.add(adpro)
             db.session.commit()
-            syslog("管理员%s修改数据信息"%user.username,S2NCATEGORY["INFO"],data=addata.id)
-            flash("修改成功，修改信息将通报。","success")
-            return redirect("/admin/data/")
+            if pid:
+                syslog("管理员%s修改题目 %d 信息"%(user.username,pid),S2NCATEGORY["INFO"])
+                flash("修改成功，修改信息将通报。","success")
+            else:
+                syslog("管理员%s添加题目 %d"%(user.username,adpro.id),S2NCATEGORY["INFO"])
+                flash("添加成功，添加信息将通报。","success")
+            return redirect("/admin/problem/")
         else:
             flash("表单信息不全","danger")
-            return redirect("/admin/data/edit/"+str(dataid)+"/")
-    return render_template("admin/data_edit.html",headertype="admin-data-edit",addata=addata,**default_dict(ses[1],request))
+            if pid:
+                return redirect("/admin/problem/edit/" + str(pid) + "/")
+            else:
+                return redirect("/admin/problem/add/")
+    return render_template("admin/problem_edit.html",adpro=adpro,**default_dict(ses[1],request,user))
+@app.route("/announcement/edit/<int:annoid>",methods=["GET","POST"])
+@app.route("/announcement/edit/<int:annoid>/",methods=["GET","POST"])
+@app.route("/announcement/add",methods=["GET","POST"])
+@app.route("/announcement/add/",methods=["GET","POST"])
+@ACCESS_REQUIRE_HTML(["ADMIN"])
+def announcement_edit(ses,user,annoid=None):
+    if annoid is None:
+        adanno = Announcement()
+        adanno.title = ""
+        adanno.content = ""
+        adanno.created_time = datetime.now()
+    else:
+        adanno:Announcement = Announcement.query.get(annoid)
+        if adanno is None:
+            flash("公告未找到","danger")
+            return redirect("/admin/announcement/")
+    if request.method == "POST":
+        if lin(["title","content"],request.form):
+            adanno.title = request.form["title"]
+            adanno.content = request.form["content"]
+            db.session.add(adanno)
+            db.session.commit()
+            if annoid:
+                syslog("管理员%s修改公告 %d 信息"%(user.username,annoid),S2NCATEGORY["INFO"])
+                flash("修改成功，修改信息将通报。","success")
+            else:
+                syslog("管理员%s添加公告 %d"%(user.username,adanno.id),S2NCATEGORY["INFO"])
+                flash("添加成功，添加信息将通报。","success")
+            return redirect("/admin/announcement/")
+        else:
+            flash("表单信息不全","danger")
+            if annoid:
+                return redirect("/admin/announcement/edit/" + str(annoid) + "/")
+            else:
+                return redirect("/admin/announcement/add/")
+    return render_template("admin/announcement_edit.html",adanno=adanno,**default_dict(ses[1],request,user))
+@app.route("/announcement/delete/<int:annoid>",methods=["GET"])
+@app.route("/announcement/delete/<int:annoid>/",methods=["GET"])
+@ACCESS_REQUIRE_HTML(["ADMIN"])
+def announcement_delete(ses,user,annoid):
+    adanno = Announcement.query.get(annoid)
+    if adanno is None:
+        flash("公告未找到","danger")
+        return redirect("/admin/announcement/")
+    db.session.delete(adanno)
+    db.session.commit()
+    syslog("管理员%s删除公告 %d"%(user.username,annoid),S2NCATEGORY["INFO"])
+    flash("删除成功，删除信息将通报。","success")
+    return redirect("/admin/announcement/")

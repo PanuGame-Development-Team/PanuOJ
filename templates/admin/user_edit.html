@@ -13,12 +13,12 @@
                 <input type="password" class="form-control" name="password" placeholder="密码"/>
             </div>
             <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" name="read"{%if split_access(aduser)["read"]%} checked{%endif%}/>
-                <label class="form-check-label" for="read">R</label><br>
-                <input type="checkbox" class="form-check-input" name="update"{%if split_access(aduser)["update"]%} checked{%endif%}/>
-                <label class="form-check-label" for="update">U</label><br>
+                <input type="checkbox" class="form-check-input" name="view"{%if split_access(aduser)["view"]%} checked{%endif%}/>
+                <label class="form-check-label" for="view">VIEW</label><br>
+                <input type="checkbox" class="form-check-input" name="submit"{%if split_access(aduser)["submit"]%} checked{%endif%}/>
+                <label class="form-check-label" for="submit">SUBMIT</label><br>
                 <input type="checkbox" class="form-check-input" name="admin"{%if split_access(aduser)["admin"]%} checked{%endif%}/>
-                <label class="form-check-label" for="admin">A</label>
+                <label class="form-check-label" for="admin">ADMIN</label>
             </div>
             <center><button class="btn btn-danger" type="submit">提交更改</button></center>
         </form>

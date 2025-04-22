@@ -1,0 +1,33 @@
+{% extends '_base.html' %}
+{% block content %}
+<style>
+    .circle {
+        border-radius: 50%;
+        width: 1rem;
+        height: 1rem;
+        display: inline-block;
+    }
+    .busy {
+        background-color: #FF8000;
+    }
+    .idle {
+        background-color: #0080FF;
+    }
+    .offline {
+        background-color: #808080;
+    }
+</style>
+评测机状态公示：
+<div class="row">
+    {% for i in stat %}
+    <div class="col-sm-4">
+        <div class="card">
+            <div class="card-body">
+                <span>{{ i }}</span>
+                <span class="float-right">Status: <div class="circle {{stat[i]}}"></div></span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

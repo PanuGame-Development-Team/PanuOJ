@@ -18,6 +18,23 @@
             <td>{{problem.accepted}} / {{problem.submit}}</td>
         </tr>
         {%endfor%}
+        <ul class="pagination">
+            <li class="page-item"><a class="page-link" href="{%if page==1%}#{%else%}/problems/?page={{page-1}}{%endif%}">&laquo;</a></li>
+            {%if page <= 3%}
+            {%set left=1%}
+            {%set right=min(paginate.pages,5)%}
+            {%elif page < paginate.pages - 2%}
+            {%set left=max(page-2,1)%}
+            {%set right=page+2%}
+            {%else%}
+            {%set left=page-2%}
+            {%set right=min(page+2,paginate.pages)%}
+            {%endif%}
+            {%for i in range(left,right+1)%}
+            <li class="page-item {%if i==page%}active{%endif%}"><a class="page-link" href="/problems/?page={{i}}">{{i}}</a></li>
+            {%endfor%}
+            <li class="page-item"><a class="page-link" href="{%if page==paginate.pages%}#{%else%}/problems/?page={{page+1}}{%endif%}">&raquo;</a></li>
+        </ul>
     </tbody>
 </table>
 {%endblock%}

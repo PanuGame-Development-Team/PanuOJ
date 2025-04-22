@@ -1,0 +1,48 @@
+{%extends "_base.html"%}
+{%block content%}
+<form action="" method="post" enctype="multipart/form-data">
+    <div class="form-row">
+        <div class="col-md-4">
+            <label for="title">标题</label>
+            <input type="text" class="form-control" name="title" value="{{adpro.title}}"/>
+        </div>
+        <div class="col-md-4">
+            <label for="time_limit">时间限制（单位：毫秒）</label>
+            <input type="text" class="form-control" name="time_limit" value="{{adpro.time_limit}}"/>
+        </div>
+        <div class="col-md-4">
+            <label for="memory_limit">空间限制（单位：kB或KiB，IEC标准）</label>
+            <input type="text" class="form-control" name="memory_limit" value="{{adpro.memory_limit}}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="background">题目背景</label>
+        <textarea class="form-control" name="background" rows="10">{{adpro.background}}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="description">题目描述</label>
+        <textarea class="form-control" name="description" rows="10">{{adpro.description}}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="inputformat">输入格式</label>
+        <textarea class="form-control" name="inputformat" rows="10">{{adpro.inputformat}}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="outputformat">输出格式</label>
+        <textarea class="form-control" name="outputformat" rows="10">{{adpro.outputformat}}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="sample">样例（json格式二维列表，如不懂请不要修改）</label>
+        <textarea class="form-control" name="sample" rows="10">{{adpro.sample}}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="hint">提示</label>
+        <textarea class="form-control" name="hint" rows="10">{{adpro.hint}}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="testcases_zip">测试点压缩包（要求：zip格式无密码，直接内置testxx.in）</label>
+        <input type="file" class="form-control-file" name="testcases_zip"/>
+    </div>
+    <center><button class="btn btn-danger" type="submit">提交更改</button></center>
+</form>
+{%endblock%}

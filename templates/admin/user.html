@@ -36,7 +36,7 @@
         <tr>
             <td>{{user.id}}</td>
             <td>{{user.username}}</td>
-            <td>{%if split_access(user)["read"]%}R{%else%}-{%endif%}{%if split_access(user)["update"]%}U{%else%}-{%endif%}{%if split_access(user)["admin"]%}A{%else%}-{%endif%}</td>
+            <td>{%if split_access(user)["view"]%}V{%else%}-{%endif%}{%if split_access(user)["submit"]%}S{%else%}-{%endif%}{%if split_access(user)["admin"]%}A{%else%}-{%endif%}</td>
             <td>{{user.created_time.strftime("%Y/%m/%d %H:%M")}}</td>
             <td>{{user.latest_login_time.strftime("%Y/%m/%d %H:%M")}}</td>
             <td>

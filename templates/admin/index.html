@@ -4,10 +4,27 @@
     <img src="/static/PGDT.jpg"/>
     <h1>后台管理</h1>
     <a href="/admin/user/" class="btn btn-primary mr-3">用户</a>
-    <a href="/admin/data/" class="btn btn-primary">数据</a>
+    <a href="/admin/problem/" class="btn btn-primary mr-3">题库</a>
+    <a href="/admin/announcement/" class="btn btn-primary mr-3">公告</a>
 </center>
 <div>
     <span>管理日志</span>
+    <form class="form-inline mb-3">
+        <select class="form-control" id="category">
+            {%for category,text in CATEGORIES.items()%}
+            <option value="{{category}}"{%if category == 1%} selected{%endif%}>{{text}}</option>
+            {%endfor%}
+        </select>
+        <input type="number" class="form-control" id="limit" value="30" min="10" max="300">
+        <button type="button" class="btn btn-success" id="search">查询</button>
+        <script>
+            $("#search").click(function(){
+                category = parseInt($("#category").val());
+                limit = parseInt($("#limit").val());
+                update_logging();
+            });
+        </script>
+    </form>
     <ul class="list-group" id="logging"></ul>
 </div>
 <script>
@@ -30,21 +47,13 @@
                     li = document.createElement("li");
                     li.className = "list-group-item";
                     li.innerHTML = data.data[i].describe;
-                    if(data.data[i].uid!=-1||data.data[i].data_id!=-1)
+                    if(data.data[i].uid!=-1)
                     {
                         li.innerHTML += "——";
                     }
                     if(data.data[i].uid!=-1)
                     {
                         li.innerHTML += "用户：" + data.data[i].uid;
-                        if(data.data[i].data_id!=-1)
-                        {
-                            li.innerHTML += "，数据：" + data.data[i].data_id;
-                        }
-                    }
-                    else if(data.data[i].data_id!=-1)
-                    {
-                        li.innerHTML += "数据：" + data.data[i].data_id;
                     }
                     {%for category,text in CATEGORIES.items()%}
                     if(data.data[i].category == "{{category}}")

@@ -1,0 +1,50 @@
+{%extends "_base.html"%}
+{%block content%}
+<a class="btn btn-primary mb-3" href="/admin/problem/add/">添加新题目</a>
+<ul class="pagination">
+    <li class="page-item"><a class="page-link" href="/admin/problem/?page=1"><span>&laquo;</span></a></li>
+    {%if pagecnt <= 5%}
+    {%set start = 1%}
+    {%set end = pagecnt%}
+    {%elif curpage <= 3%}
+    {%set start = 1%}
+    {%set end = 5%}
+    {%elif curpage >= pagecnt - 2%}
+    {%set start = pagecnt - 4%}
+    {%set end = pagecnt%}
+    {%else%}
+    {%set start = curpage - 2%}
+    {%set end = curpage + 2%}
+    {%endif%}
+    {%for i in range(start,end+1)%}
+    <li class="page-item{%if i==curpage%} active{%endif%}"><a class="page-link" href="/admin/problem/?page={{i}}">{{i}}</a></li>
+    {%endfor%}
+    <li class="page-item"><a class="page-link" href="/admin/problem/?page={{pagecnt}}"><span>&raquo;</span></a></li>
+</ul>
+<table class="table table-striped text-monospace">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>标题</th>
+            <th>时间 / 空间</th>
+            <th>通过 / 提交</th>
+            <th>测试点:文件</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%for problem in problems%}
+        <tr>
+            <td>{{problem.id}}</td>
+            <td>{{problem.title}}</td>
+            <td>{{problem.time_limit}}ms / {{problem.memory_limit}}kB</td>
+            <td>{{problem.accepted}} / {{problem.submit}}</td>
+            <td>{{problem.testcases}}:{{problem.testcases_zip}}</td>
+            <td>
+                <a href="/admin/problem/edit/{{problem.id}}/" class="btn btn-primary">编辑</a>
+            </td>
+        </tr>
+        {%endfor%}
+    </tbody>
+</table>
+{%endblock%}

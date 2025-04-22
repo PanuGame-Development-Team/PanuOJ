@@ -3,6 +3,7 @@ from settings import *
 from constances import *
 from model import *
 from json import loads as _loads
+from markdown import markdown as _markdown
 def default_dict(session,request,user,loginpage=False):
     dic = dict()
     dic["loginpage"] = loginpage
@@ -27,6 +28,10 @@ def default_dict(session,request,user,loginpage=False):
     
     dic["split_access"] = split_access
     dic["jsonload"] = _loads
+    dic["max"] = max
+    dic["min"] = min
     return dic
-def render_markdown(content):
-    return content
+def render_markdown(md):
+    mdmodules = ["markdown.extensions.extra","markdown.extensions.codehilite","markdown.extensions.tables","markdown.extensions.toc"]
+    mdconfigs = {}
+    return _markdown(md,extensions=mdmodules,extension_configs=mdconfigs)
