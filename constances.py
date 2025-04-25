@@ -1,6 +1,6 @@
 APP_NAME = "PanuOJ-Frontend"
-APP_VERSION = "3.0.0-250422-alpha"
-APP_VERSYM = "Ambitious Aristocrat"
+APP_VERSION = "3.0.1-250425-beta"
+APP_VERSYM = "Ambitious Businessman"
 HOST = "127.0.0.1"
 PORT = 7695
 CATEGORY = {0:"DEBUG",1:"INFO",2:"SUSPICIOUS",3:"WARNING",4:"ERROR",5:"CRITICAL"}

@@ -5,11 +5,20 @@
 * Flask 3.1.0
 * Flask-SQLAlchemy 3.1.1
 * Flask-Migrate 4.1.0
+* fortune-mod version 9708
 ### 构建方法
 1. 安装依赖包
 在项目根目录下执行以下命令安装依赖包：
 ```bash
 pipenv install
+```
+Debian系列用户：
+```bash
+sudo apt install fortune-mod
+```
+CentOS系列用户：
+```bash
+sudo yum install fortune-mod
 ```
 2. 创建设置文件
 在项目根目录下创建 `settings.py` 文件，并添加以下内容：
