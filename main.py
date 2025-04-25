@@ -27,7 +27,8 @@ def index():
     if not user.access & ACCESS["VIEW"]:
         abort(403)
     announcements = Announcement.query.all()
-    return render_template("index.html",announcements=announcements,**default_dict(ses[1],request,user))
+    fortunes = [get_fortune() for i in range(5)]
+    return render_template("index.html",fortunes=fortunes,announcements=announcements,**default_dict(ses[1],request,user))
 @app.route("/login",methods=["GET","POST"])
 @app.route("/login/",methods=["GET","POST"])
 def login():
@@ -45,7 +46,7 @@ def login():
                     db.session.add(user)
                     db.session.commit()
                     res = redirect("/")
-                    res.set_cookie("sessionid",createSession(user.id,{}),max_age=8640000)
+                    res.set_cookie("sessionid",createSession(user.id,{}),max_age=8640000,samesite="Strict")
                     return res
                 else:
                     flash("密码错误，请重新输入。","danger")

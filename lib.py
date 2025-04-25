@@ -1,6 +1,6 @@
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask import jsonify,request,flash,redirect
-from os import path as ospath
+from os import path as ospath,popen as _popen
 from constances import *
 from settings import *
 from model import *
@@ -98,3 +98,6 @@ def ACCESS_REQUIRE_HTML(access):
     return ACCESS_REQUIRE_DECORATOR
 def uuidgen():
     return _uuid().hex
+def get_fortune():
+    fortune = _popen("fortune").read()
+    return fortune

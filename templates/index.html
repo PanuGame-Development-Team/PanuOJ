@@ -17,34 +17,62 @@
         });
     </script>
 </div>
-<ul class="list-group">
-    <span>公告栏</span>
-    {% for anno in announcements %}
-    <li class="list-group-item">
-        <a href="#" onclick="$('#anno-{{ anno.id }}').modal('show');">{{ anno.title }}</a>
-        <span class="text-muted float-right">{{ anno.created_time.strftime('%Y/%m/%d %H:%M') }}</span>
-    </li>
-    <div class="modal fade" id="anno-{{ anno.id }}">
-        <div class="modal-lg modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ anno.title }}</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+<div class="row">
+    <div class="col-md-8">
+        <div id="fortunecarousel" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+                <li data-target="#fortunecarousel" data-slide-to="0" class="active"></li>
+                <li data-target="#fortunecarousel" data-slide-to="1"></li>
+                <li data-target="#fortunecarousel" data-slide-to="2"></li>
+                <li data-target="#fortunecarousel" data-slide-to="3"></li>
+                <li data-target="#fortunecarousel" data-slide-to="4"></li>
+            </ol>
+            <div class="carousel-inner">
+            {% for fortune in fortunes %}
+                <div class="carousel-item {{ 'active' if loop.first }}" style="height: 300px;background-color: #606060;">
+                    <center><pre class="mt-3" style="color: #FFFFFF;">{{fortune}}</pre></center>
                 </div>
-                <div class="modal-body">
-                    <link rel="stylesheet" href="/static/default.css">
-                    <link rel="stylesheet" href="/static/code.css">
-                    {{ anno.content|render_markdown|safe }}
-                </div>
+            {% endfor %}
             </div>
+            <button class="carousel-control-prev" type="button" data-target="#fortunecarousel" data-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-target="#fortunecarousel" data-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
         </div>
     </div>
-    {% else %}
-    <li class="list-group-item">
-        暂无公告
-    </li>
-    {% endfor %}
-</ul>
+    <div class="col-md-4">
+        <ul class="list-group">
+            <span>公告栏</span>
+            {% for anno in announcements %}
+            <li class="list-group-item">
+                <a href="#" onclick="$('#anno-{{ anno.id }}').modal('show');">{{ anno.title }}</a>
+                <span class="text-muted float-right">{{ anno.created_time.strftime('%Y/%m/%d %H:%M') }}</span>
+            </li>
+            <div class="modal fade" id="anno-{{ anno.id }}">
+                <div class="modal-lg modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{ anno.title }}</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <link rel="stylesheet" href="/static/default.css">
+                            <link rel="stylesheet" href="/static/code.css">
+                            {{ anno.content|render_markdown|safe }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <li class="list-group-item">
+                暂无公告
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 <script>
     $(document).ready(function(){
         var i,ls=document.getElementsByClassName("modal-body");
