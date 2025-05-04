@@ -29,8 +29,9 @@ def index():
     if not user.access & ACCESS["VIEW"]:
         abort(403)
     announcements = Announcement.query.all()
+    discussions = Discussion.query.order_by(Discussion.top.desc(),Discussion.id.desc()).limit(6).all()
     fortunes = [get_fortune() for i in range(5)]
-    return render_template("index.html",fortunes=fortunes,announcements=announcements,**default_dict(ses[1],request,user))
+    return render_template("index.html",fortunes=fortunes,announcements=announcements,discussions=discussions,**default_dict(ses[1],request,user))
 @app.route("/login",methods=["GET","POST"])
 @app.route("/login/",methods=["GET","POST"])
 def login():

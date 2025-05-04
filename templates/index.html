@@ -19,7 +19,7 @@
 </div>
 <div class="row">
     <div class="col-md-8">
-        <div id="fortunecarousel" class="carousel slide" data-ride="carousel">
+        <div id="fortunecarousel" class="carousel slide mb-3" data-ride="carousel">
             <ol class="carousel-indicators">
                 <li data-target="#fortunecarousel" data-slide-to="0" class="active"></li>
                 <li data-target="#fortunecarousel" data-slide-to="1"></li>
@@ -41,10 +41,28 @@
                 <span class="carousel-control-next-icon"></span>
             </button>
         </div>
+        <span>讨论区</span>
+        <div class="row">
+            {%for discussion in discussions%}
+            <div class="col-sm-6">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <a href="/discuss/{{ discussion.id }}/">{{ discussion.title }}</a>
+                        {%if discussion.top%}<span class="badge badge-primary">置顶</span>{%endif%}
+                        <span class="text-muted float-right">{{ discussion.created_time.strftime("%Y/%m/%d") }}</span>
+                    </div>
+                    <div class="card-body">
+                        <span class="text-muted">楼主: {{ macros.userlink_inline(discussion.uid,uquery) }}</span><br>
+                        <span class="text-muted">题目：{{ macros.problemlink_inline(discussion.pid,proquery)}}</span><br>
+                    </div>
+                </div>
+            </div>
+            {%endfor%}
+        </div>
     </div>
     <div class="col-md-4">
+        <span>公告栏</span>
         <ul class="list-group">
-            <span>公告栏</span>
             {% for anno in announcements %}
             <li class="list-group-item">
                 <a href="#" onclick="$('#anno-{{ anno.id }}').modal('show');">{{ anno.title }}</a>

@@ -1,0 +1,30 @@
+{%extends "_base.html"%}
+{%block content%}
+{{ macros.pagination_nav("admin/discussion",pagecnt,curpage) }}
+<table class="table table-striped text-monospace">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>标题</th>
+            <th>创建时间</th>
+            <th>题目</th>
+            <th>楼主</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%for discussion in discussions%}
+        <tr>
+            <td>{{discussion.id}}</td>
+            <td>{{discussion.title}}</td>
+            <td>{{discussion.created_time.strftime("%Y/%m/%d %H:%M")}}</td>
+            <td>{{macros.problemlink_inline(discussion.pid,proquery)}}</td>
+            <td>{{macros.userlink_inline(discussion.uid,uquery)}}</td>
+            <td>
+                <a href="/admin/discussion/edit/{{discussion.id}}/" class="btn btn-primary">编辑</a>
+            </td>
+        </tr>
+        {%endfor%}
+    </tbody>
+</table>
+{%endblock%}

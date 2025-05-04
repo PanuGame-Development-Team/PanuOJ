@@ -55,7 +55,7 @@ def subtree(ls):
 @app.route("/edit/<int:did>",methods=["GET","POST"])
 @app.route("/edit/<int:did>/",methods=["GET","POST"])
 @ACCESS_REQUIRE_HTML(["VIEW","PUBLISH"])
-def new(ses,user,did=None):
+def edit(ses,user,did=None):
     if did is None:
         discussion = Discussion()
         discussion.title = ""
@@ -70,7 +70,10 @@ def new(ses,user,did=None):
     if request.method == "POST":
         if not lin(["title","content","pid"],request.form):
             flash("请填写标题和内容","danger")
-            return redirect("/discuss/new/")
+            if not did:
+                return redirect("/discuss/new/")
+            else:
+                return redirect("/discuss/edit/%d/"%did)
         discussion.title = request.form["title"]
         discussion.content = request.form["content"]
         try:
@@ -80,7 +83,10 @@ def new(ses,user,did=None):
                 raise ValueError("Problem not found.")
         except:
             flash("输入数据有误：题目编号为整数且对应题目存在。","danger")
-            return redirect("/discuss/new/")
+            if not did:
+                return redirect("/discuss/new/")
+            else:
+                return redirect("/discuss/edit/%d/"%did)
         db.session.add(discussion)
         db.session.commit()
         flash("讨论成功","success")

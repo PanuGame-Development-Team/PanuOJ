@@ -205,3 +205,45 @@ def announcement_delete(ses,user,annoid):
     syslog("管理员%s删除公告 %d"%(user.username,annoid),S2NCATEGORY["INFO"])
     flash("删除成功，删除信息将通报。","success")
     return redirect("/admin/announcement/")
+@app.route("/discussion",methods=["GET"])
+@app.route("/discussion/",methods=["GET"])
+@ACCESS_REQUIRE_HTML(["ADMIN"])
+def discussion(ses,user):
+    curpage = int(request.args.get("page",1))
+    pagination = Discussion.query.paginate(page=curpage,per_page=30,max_per_page=30)
+    pagecnt = pagination.pages
+    discussions = pagination.items
+    return render_template("admin/discussion.html",curpage=curpage,pagecnt=pagecnt,discussions=discussions,**default_dict(ses[1],request,user))
+@app.route("/discussion/edit/<int:did>",methods=["GET","POST"])
+@app.route("/discussion/edit/<int:did>/",methods=["GET","POST"])
+@ACCESS_REQUIRE_HTML(["ADMIN"])
+def discussion_edit(ses,user,did):
+    addis = Discussion.query.get(did)
+    if addis is None:
+        flash("讨论未找到","danger")
+        return redirect("/admin/discussion/")
+    if request.method == "POST":
+        if lin(["title","content"],request.form):
+            addis.title = request.form["title"]
+            addis.content = request.form["content"]
+            try:
+                addis.pid = int(request.form["pid"])
+                problem = Problem.query.get(addis.pid)
+                if not problem or problem.deleted:
+                    raise ValueError("Problem not found.")
+            except:
+                flash("输入数据有误：题目编号为整数且对应题目存在。","danger")
+                return redirect("/admin/discussion/edit/" + str(did) + "/")
+            if request.form.get("top",None) == "on":
+                addis.top = 1
+            else:
+                addis.top = 0
+            db.session.add(addis)
+            db.session.commit()
+            syslog("管理员%s修改讨论 %d 信息"%(user.username,did),S2NCATEGORY["INFO"])
+            flash("修改成功，修改信息将通报。","success")
+            return redirect("/admin/discussion/")
+        else:
+            flash("表单信息不全","danger")
+            return redirect("/admin/discussion/edit/" + str(did) + "/")
+    return render_template("admin/discussion_edit.html",discussion=addis,**default_dict(ses[1],request,user))
