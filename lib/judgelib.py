@@ -29,7 +29,10 @@ class Judger:
             self.judger_busy = 0
     def get_response(self,app):
         if self.judger_online and self.judger_busy:
-            res = get(f"http://{self.judger_ip}:{self.judger_port}/record/{self.judger_record_id}").json()
+            try:
+                res = get(f"http://{self.judger_ip}:{self.judger_port}/record/{self.judger_record_id}").json()
+            except:
+                res = {"status":"ERROR","message":"Judger has some problems to solve."}
             if res["status"] == "OK":
                 with app.app_context():
                     record:Record = Record.query.get(self.judger_record_id)
@@ -69,21 +72,21 @@ class Judger:
                 self.judger_busy = 0
                 self.judger_record_id = None
             elif datetime.now() > self.judger_endtime:
-                self.judger_busy = 0
-                self.judger_record_id = None
                 with app.app_context():
                     record:Record = Record.query.get(self.judger_record_id)
                     record.result = "UKE"
                     db.session.add(record)
                     db.session.commit()
-                syslog(f"Judger {self.judger_id} timeout.",CATEGORY["SUSPICIOUS"],self.judger_record_id)
+                    syslog(f"Judger {self.judger_id} timeout.",S2NCATEGORY["SUSPICIOUS"])
+                self.judger_busy = 0
+                self.judger_record_id = None
     def submit(self,rid):
         self.judger_record_id = rid
-        self.judger_busy = 1
-        self.judger_endtime = datetime.now() + timedelta(seconds=Record.query.get(rid).time_limit + 5)
         with self.app.app_context():
             record:Record = Record.query.get(rid)
             problem:Problem = Problem.query.get(record.pid)
+        self.judger_endtime = datetime.now() + timedelta(seconds=problem.time_limit * problem.testcases / 1000 * 1.5)
+        self.judger_busy = 1
         self.heartbeat()
         if self.judger_online:
             return post(f"http://{self.judger_ip}:{self.judger_port}/",files={"testcases":open(problem.testcases_zip,"rb")},data={"problem_id":record.pid,"record_id":rid,"time":problem.time_limit,"memory":problem.memory_limit,"language":record.language,"O2":record.O2,"code":record.code,"tests":problem.testcases}).json()

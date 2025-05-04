@@ -1,5 +1,5 @@
 APP_NAME = "PanuOJ-Frontend"
-APP_VERSION = "3.1.0-250503-alpha"
+APP_VERSION = "3.1.0-250503-alpha-rev1"
 APP_VERSYM = "Blooming Aristocrat"
 HOST = "127.0.0.1"
 PORT = 7695

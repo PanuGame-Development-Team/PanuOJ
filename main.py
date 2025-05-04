@@ -112,7 +112,6 @@ def submit(ses,user,pid):
     if not problem:
         flash("题目不存在。","danger")
         return redirect("/problems/")
-    print(request.form)
     if user.access & ACCESS["SUBMIT"]:
         rec = Record()
         rec.code = request.form["code"]
