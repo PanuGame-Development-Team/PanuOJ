@@ -1,8 +1,11 @@
 from requests import post,get,ConnectionError,ConnectTimeout
 from model import *
+from constances import *
 from time import sleep
 from threading import Thread
 from json import dumps
+from datetime import timedelta,datetime
+from .core import syslog
 class Judger:
     def __init__(self,judger_id,judger_ip,judger_port,app=None):
         self.judger_id = judger_id
@@ -11,6 +14,7 @@ class Judger:
         self.judger_online = 1
         self.judger_busy = 0
         self.judger_record_id = None
+        self.judger_endtime = None
         self.app = app
     def heartbeat(self):
         global judgers_online,judgers
@@ -64,9 +68,19 @@ class Judger:
                         db.session.commit()
                 self.judger_busy = 0
                 self.judger_record_id = None
+            elif datetime.now() > self.judger_endtime:
+                self.judger_busy = 0
+                self.judger_record_id = None
+                with app.app_context():
+                    record:Record = Record.query.get(self.judger_record_id)
+                    record.result = "UKE"
+                    db.session.add(record)
+                    db.session.commit()
+                syslog(f"Judger {self.judger_id} timeout.",CATEGORY["SUSPICIOUS"],self.judger_record_id)
     def submit(self,rid):
         self.judger_record_id = rid
         self.judger_busy = 1
+        self.judger_endtime = datetime.now() + timedelta(seconds=Record.query.get(rid).time_limit + 5)
         with self.app.app_context():
             record:Record = Record.query.get(rid)
             problem:Problem = Problem.query.get(record.pid)
@@ -78,8 +92,9 @@ class Judger:
     def event_loop(self,app):
         while True:
             self.heartbeat()
-            self.get_response(app)
-            sleep(3)
+            for i in range(6):
+                self.get_response(app)
+                sleep(0.5)
     def init_app(self,app):
         self.app = app
     def start(self):
@@ -102,4 +117,3 @@ def distribute_loop():
     while True:
         distribute()
         sleep(0.1)
-# 有必要给评测机添加手动重定向，否则输出结果将影响评测结果

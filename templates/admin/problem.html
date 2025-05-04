@@ -1,26 +1,7 @@
 {%extends "_base.html"%}
 {%block content%}
 <a class="btn btn-primary mb-3" href="/admin/problem/add/">添加新题目</a>
-<ul class="pagination">
-    <li class="page-item"><a class="page-link" href="/admin/problem/?page=1"><span>&laquo;</span></a></li>
-    {%if pagecnt <= 5%}
-    {%set start = 1%}
-    {%set end = pagecnt%}
-    {%elif curpage <= 3%}
-    {%set start = 1%}
-    {%set end = 5%}
-    {%elif curpage >= pagecnt - 2%}
-    {%set start = pagecnt - 4%}
-    {%set end = pagecnt%}
-    {%else%}
-    {%set start = curpage - 2%}
-    {%set end = curpage + 2%}
-    {%endif%}
-    {%for i in range(start,end+1)%}
-    <li class="page-item{%if i==curpage%} active{%endif%}"><a class="page-link" href="/admin/problem/?page={{i}}">{{i}}</a></li>
-    {%endfor%}
-    <li class="page-item"><a class="page-link" href="/admin/problem/?page={{pagecnt}}"><span>&raquo;</span></a></li>
-</ul>
+{{ macros.pagination_nav("admin/problem",pagecnt,curpage) }}
 <table class="table table-striped text-monospace">
     <thead>
         <tr>
@@ -42,6 +23,7 @@
             <td>{{problem.testcases}}:{{problem.testcases_zip}}</td>
             <td>
                 <a href="/admin/problem/edit/{{problem.id}}/" class="btn btn-primary">编辑</a>
+                <a href="/admin/problem/delete/{{problem.id}}/" class="btn btn-danger">删除</a>
             </td>
         </tr>
         {%endfor%}

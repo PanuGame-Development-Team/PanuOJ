@@ -17,6 +17,8 @@
                 <label class="form-check-label" for="view">VIEW</label><br>
                 <input type="checkbox" class="form-check-input" name="submit"{%if split_access(aduser)["submit"]%} checked{%endif%}/>
                 <label class="form-check-label" for="submit">SUBMIT</label><br>
+                <input type="checkbox" class="form-check-input" name="publish"{%if split_access(aduser)["publish"]%} checked{%endif%}/>
+                <label class="form-check-label" for="publish">PUBLISH</label><br>
                 <input type="checkbox" class="form-check-input" name="admin"{%if split_access(aduser)["admin"]%} checked{%endif%}/>
                 <label class="form-check-label" for="admin">ADMIN</label>
             </div>

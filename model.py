@@ -42,6 +42,7 @@ class Problem(db.Model):
     memory_limit = db.Column(db.Integer,nullable=False,default=65536)
     testcases_zip = db.Column(db.String(128),nullable=False)
     testcases = db.Column(db.Integer,nullable=False)
+    deleted = db.Column(db.Integer,server_default="0")
 class Record(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     uid = db.Column(db.Integer,db.ForeignKey('user.id'),nullable=False,index=True)
@@ -57,5 +58,20 @@ class Record(db.Model):
 class Announcement(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     title = db.Column(db.Unicode(64),nullable=False,index=True)
+    content = db.Column(db.Text)
+    created_time = db.Column(db.DateTime,default=datetime.now)
+class Discussion(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    title = db.Column(db.Unicode(64),nullable=False,index=True)
+    pid = db.Column(db.Integer,db.ForeignKey('problem.id'),nullable=False,index=True)
+    uid = db.Column(db.Integer,db.ForeignKey('user.id'),nullable=False,index=True)
+    content = db.Column(db.Text)
+    created_time = db.Column(db.DateTime,default=datetime.now)
+    top = db.Column(db.Integer,default=0)
+class DiscussionComment(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    did = db.Column(db.Integer,db.ForeignKey('discussion.id'),nullable=False,index=True)
+    cid = db.Column(db.Integer,db.ForeignKey('discussion_comment.id'),nullable=True,index=True)
+    uid = db.Column(db.Integer,db.ForeignKey('user.id'),nullable=False,index=True)
     content = db.Column(db.Text)
     created_time = db.Column(db.DateTime,default=datetime.now)

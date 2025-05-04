@@ -6,6 +6,7 @@ from constances import *
 from settings import *
 from api import app as api_blueprint
 from admin import app as admin_blueprint
+from discuss import app as discuss_blueprint
 app = Flask(APP_NAME)
 app.secret_key = SECRET_KEY
 for conf in CONFIG:
@@ -13,6 +14,7 @@ for conf in CONFIG:
 db.init_app(app)
 app.register_blueprint(api_blueprint)
 app.register_blueprint(admin_blueprint)
+app.register_blueprint(discuss_blueprint)
 app.add_template_filter(render_markdown,"render_markdown")
 for i in judgers:
     judgers[i].init_app(app)
@@ -75,15 +77,17 @@ def login():
 @app.route("/problems/",methods=["GET"])
 @ACCESS_REQUIRE_HTML(["VIEW"])
 def problems(ses,user):
-    page = int(request.args.get("page",1))
-    paginate = Problem.query.paginate(page=page,per_page=30,max_per_page=30)
-    return render_template("problems.html",page=page,paginate=paginate,**default_dict(ses[1],request,user))
+    curpage = int(request.args.get("page",1))
+    paginate = Problem.query.filter(Problem.deleted==0).paginate(page=curpage,per_page=30,max_per_page=30)
+    pagecnt = paginate.pages
+    problems = paginate.items
+    return render_template("problems.html",curpage=curpage,pagecnt=pagecnt,problems=problems,**default_dict(ses[1],request,user))
 @app.route("/problems/<int:pid>",methods=["GET"])
 @app.route("/problems/<int:pid>/",methods=["GET"])
 @ACCESS_REQUIRE_HTML(["VIEW"])
 def problem_show(ses,user,pid):
     problem = Problem.query.get(pid)
-    if problem:
+    if problem and (problem.deleted == 0 or user.access & ACCESS["ADMIN"]):
         return render_template("problem_show.html",problem=problem,**default_dict(ses[1],request,user))
     else:
         abort(404)
@@ -91,7 +95,7 @@ def problem_show(ses,user,pid):
 @app.route("/problems/random/",methods=["GET"])
 @ACCESS_REQUIRE_HTML(["VIEW"])
 def random_problem(ses,user):
-    problem = Problem.query.order_by(func.random()).first()
+    problem = Problem.query.filter(Problem.deleted==0).order_by(func.random()).first()
     return redirect("/problems/%d/"%problem.id)
 @app.route("/submit/<int:pid>",methods=["POST"])
 @app.route("/submit/<int:pid>/",methods=["POST"])

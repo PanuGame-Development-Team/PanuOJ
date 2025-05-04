@@ -24,7 +24,7 @@ def user(ses,user):
 @ACCESS_REQUIRE_HTML(["ADMIN"])
 def problem(ses,user):
     curpage = int(request.args.get("page",1))
-    pagination = Problem.query.paginate(page=curpage,per_page=30,max_per_page=30)
+    pagination = Problem.query.filter(Problem.deleted==0).paginate(page=curpage,per_page=30,max_per_page=30)
     pagecnt = pagination.pages
     problems = pagination.items
     return render_template("admin/problem.html",curpage=curpage,pagecnt=pagecnt,problems=problems,**default_dict(ses[1],request,user))
@@ -53,6 +53,8 @@ def user_edit(ses,user,uid):
                 access |= ACCESS["SUBMIT"]
             if request.form.get("admin",None) == "on":
                 access |= ACCESS["ADMIN"]
+            if request.form.get("publish",None) == "on":
+                access |= ACCESS["PUBLISH"]
             aduser.access = access
             db.session.add(aduser)
             Session.query.filter_by(uid=uid).delete()
@@ -133,6 +135,27 @@ def problem_edit(ses,user,pid=None):
             else:
                 return redirect("/admin/problem/add/")
     return render_template("admin/problem_edit.html",adpro=adpro,**default_dict(ses[1],request,user))
+@app.route("/problem/delete/<int:pid>",methods=["GET"])
+@app.route("/problem/delete/<int:pid>/",methods=["GET"])
+@ACCESS_REQUIRE_HTML(["ADMIN"])
+def problem_delete(ses,user,pid):
+    adpro = Problem.query.get(pid)
+    if adpro is None:
+        flash("题目未找到","danger")
+        return redirect("/admin/problem/")
+    adpro.deleted = 1
+    original_title = adpro.title
+    new_title = original_title + "-deleted"
+    cnt = 0
+    while Problem.query.filter(Problem.title==new_title).count() != 0:
+        cnt += 1
+        new_title = original_title + "-deleted-" + str(cnt)
+    adpro.title = new_title
+    db.session.add(adpro)
+    db.session.commit()
+    syslog("管理员%s删除题目 %d"%(user.username,pid),S2NCATEGORY["INFO"])
+    flash("删除成功，删除信息将通报。","success")
+    return redirect("/admin/problem/")
 @app.route("/announcement/edit/<int:annoid>",methods=["GET","POST"])
 @app.route("/announcement/edit/<int:annoid>/",methods=["GET","POST"])
 @app.route("/announcement/add",methods=["GET","POST"])

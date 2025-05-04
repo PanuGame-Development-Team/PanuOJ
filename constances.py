@@ -1,10 +1,10 @@
 APP_NAME = "PanuOJ-Frontend"
-APP_VERSION = "3.0.1-250425-beta"
-APP_VERSYM = "Ambitious Businessman"
+APP_VERSION = "3.1.0-RC1"
+APP_VERSYM = "Blooming Aristocrat"
 HOST = "127.0.0.1"
 PORT = 7695
 CATEGORY = {0:"DEBUG",1:"INFO",2:"SUSPICIOUS",3:"WARNING",4:"ERROR",5:"CRITICAL"}
 S2NCATEGORY = {v:k for k,v in CATEGORY.items()}
 SHOW_COLOR = {0:"secondary",1:"info",2:"warning",3:"warning",4:"danger",5:"danger"}
-ACCESS = {"VIEW":1,"SUBMIT":2,"ADMIN":4}
+ACCESS = {"VIEW":1,"SUBMIT":2,"ADMIN":4,"PUBLISH":8}
 LANGUAGES = ["C++","C","C++11","C++14","C++17","C++20"]

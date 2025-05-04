@@ -1,0 +1,18 @@
+{%extends "_base.html"%}
+{%block content%}
+<form action="" method="post">
+    <div class="form-group">
+        <label for="title">标题</label>
+        <input type="text" class="form-control" name="title" value="{{discussion.title}}"/>
+    </div>
+    <div class="form-group">
+        <label for="content">内容</label>
+        <textarea class="form-control" name="content" rows="10">{{discussion.content}}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="pid">题目编号</label>
+        <input type="text" class="form-control" name="pid" value="{{discussion.pid or ""}}"/>
+    </div>
+    <center><button class="btn btn-danger" type="submit">提交更改</button></center>
+</form>
+{%endblock%}

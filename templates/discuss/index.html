@@ -1,0 +1,26 @@
+{% extends "_base.html" %}
+{% block content %}
+{%if split_access(user)["publish"]%}
+<a href="/discuss/new/" class="btn btn-primary mb-3">发布新讨论</a>
+{%endif%}
+{{ macros.pagination_nav("discuss",pagecnt,curpage) }}
+<table class="table table-striped text-monospace">
+    <thead>
+        <tr>
+            <th>标题</th>
+            <th>题目</th>
+            <th>用户</th>
+            <th>创建时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for discussion in discussions %}
+        <tr>
+            <td><a href="/discuss/{{discussion.id}}" style="color:inherit;">{{ discussion.title }}</a></td>
+            <td>{{macros.problemlink_inline(discussion.pid,proquery)}}</td>
+            <td>{{macros.userlink_inline(discussion.uid,uquery)}}</td>
+            <td>{{ discussion.created_time.strftime('%Y/%m/%d %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "_base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-8">
+        <div class="card mb-3">
+            <div class="card-header">
+                <span class="card-title">{{discussion.title}}</span>
+                <span class="float-right">{{discussion.created_time.strftime("%Y/%m/%d %H:%M")}}</span>
+            </div>
+            <div class="card-body">
+                {{discussion.content|render_markdown|safe}}
+            </div>
+        </div>
+        <span class="text-muted">回复 楼主</span>
+        <form class="form-inline" action="/discuss/{{discussion.id}}/" method="post">
+            <div class="w-100" style="display: flex;">
+                <input type="text" name="comment" placeholder="这一刻的想法，评论一下" class="form-control" style="flex:11;">
+                <button type="submit" class="btn btn-primary w-100 ml-3" style="flex:1;">提交</button>
+            </div>
+        </form>
+        <ul class="list-group mt-2">
+            {%for id in start recursive%}
+            <li class="list-group-item" onclick="change_visibility('c-{{id}}')">
+                {{comments[id].content}}<span class="float-right text-muted">{{macros.userlink_inline(comments[id].uid,uquery)}} 于 {{comments[id].created_time.strftime("%Y/%m/%d %H:%M")}}</span>
+            </li>
+            <li class="list-group-item" id="c-{{id}}" style="display:none;">
+                <span class="text-muted">回复 {{macros.userlink_inline(comments[id].uid,uquery)}}</span>
+                <form class="form-inline" action="/discuss/{{discussion.id}}/" method="post">
+                    <div class="w-100" style="display: flex;">
+                        <input type="hidden" name="cid" value="{{id}}">
+                        <input type="text" name="comment" placeholder="这一刻的想法，评论一下" class="form-control" style="flex:11;">
+                        <button type="submit" class="btn btn-primary w-100 ml-3" style="flex:1;">提交</button>
+                    </div>
+                </form>
+                {%if child[id] != []%}
+                <ul class="list-group mt-2">
+                    {{loop(child[id])}}
+                </ul>
+                {%endif%}
+            </li>
+            {%endfor%}
+        </ul>
+    </div>
+    <div class="col-sm-4">
+        <ul class="list-group">
+            <li class="list-group-item">标题：<span class="float-right">{{discussion.title}}</span></li>
+            <li class="list-group-item">楼主：<span class="float-right">{{macros.userlink_inline(discussion.uid,uquery)}}</span></li>
+            <li class="list-group-item">题目：<span class="float-right">{{macros.problemlink_inline(discussion.pid,proquery)}}</span></li>
+            <li class="list-group-item">创建时间：<span class="float-right">{{discussion.created_time.strftime("%Y/%m/%d %H:%M")}}</span></li>
+            {%if user.id == discussion.uid%}
+            <li class="list-group-item">操作：<span class="float-right"><a href="/discuss/edit/{{discussion.id}}/" class="btn btn-primary">编辑</a></span></li>
+            {%endif%}
+        </ul>
+    </div>
+</div>
+<script>
+    function change_visibility(id) {
+        var el = document.getElementById(id);
+        if (el.style.display == "none") {
+            el.style.display = "block";
+        } else {
+            el.style.display = "none";
+        }
+    }
+</script>
+{% endblock %}

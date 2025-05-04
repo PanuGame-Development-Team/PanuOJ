@@ -30,6 +30,14 @@ def default_dict(session,request,user,loginpage=False):
     dic["jsonload"] = _loads
     dic["max"] = max
     dic["min"] = min
+    
+    dic["uquery"] = User.query
+    dic["proquery"] = Problem.query
+    dic["dquery"] = Discussion.query
+    dic["recquery"] = Record.query
+    dic["dcquery"] = DiscussionComment.query
+    dic["annoquery"] = Announcement.query
+    
     return dic
 def render_markdown(md):
     mdmodules = ["markdown.extensions.extra","markdown.extensions.codehilite","markdown.extensions.tables","markdown.extensions.toc"]
