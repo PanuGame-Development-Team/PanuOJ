@@ -40,3 +40,7 @@ python3 migrate.py init
 ```
 5. 部署
 请使用systemctl/supervisor，uwsgi/gunicorn，nginx/apache反向代理进行部署。
+注意：wsgi启动时切忌使用多进程，因为心跳与评测队列位于独立进程中导致ISE，多线程不受影响，建议启动方式：（nginx反向将127.0.0.1公开到外部）
+```bash
+gunicorn -w 1 --threads 8 -b 127.0.0.1:7695 main:app --worker-class gthread
+```
