@@ -89,7 +89,10 @@ class Judger:
         self.judger_busy = 1
         self.heartbeat()
         if self.judger_online:
-            return post(f"http://{self.judger_ip}:{self.judger_port}/",files={"testcases":open(problem.testcases_zip,"rb")},data={"problem_id":record.pid,"record_id":rid,"time":problem.time_limit,"memory":problem.memory_limit,"language":record.language,"O2":record.O2,"code":record.code,"tests":problem.testcases}).json()
+            try:
+                return post(f"http://{self.judger_ip}:{self.judger_port}/",files={"testcases":open(problem.testcases_zip,"rb")},data={"problem_id":record.pid,"record_id":rid,"time":problem.time_limit,"memory":problem.memory_limit,"language":record.language,"O2":record.O2,"code":record.code,"tests":problem.testcases}).json()
+            except:
+                res = {"status":"ERROR","message":"Judger has some problems to solve."}
         else:
             return {"status":"OFFLINE","message":"Judger is offline."}
     def event_loop(self,app):
