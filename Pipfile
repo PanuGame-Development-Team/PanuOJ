@@ -1,15 +1,16 @@
 [[source]]
-url = "https://pypi.org/simple"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 verify_ssl = true
-name = "pypi"
+name = "tsinghua"
 
 [packages]
-flask = "*"
-flask-sqlalchemy = "*"
-flask-migrate = "*"
-requests = "*"
-pymysql = "*"
-markdown = "*"
+flask = "3.1.0"
+flask-sqlalchemy = "3.1.1"
+flask-migrate = "4.1.0"
+requests = "2.32.3"
+pymysql = "1.1.1"
+markdown = "3.8"
+gunicorn = "23.0.0"
 
 [dev-packages]
 
