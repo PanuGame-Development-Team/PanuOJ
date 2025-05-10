@@ -1,6 +1,7 @@
 from requests import post,get,ConnectionError,ConnectTimeout
-from model import *
 from constances import *
+from settings import *
+from model import *
 from time import sleep
 from threading import Thread
 from json import dumps
@@ -105,7 +106,7 @@ class Judger:
         self.app = app
     def start(self):
         Thread(target=self.event_loop,args=(self.app,)).start()
-judgers = {"Mercury":Judger("Mercury","192.168.3.23",34734)}
+judgers = {i[0]:Judger(*i) for i in JUDGER_LIST}
 judgers_online = []
 judge_queue = []
 def distribute():
