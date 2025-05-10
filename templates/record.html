@@ -89,8 +89,8 @@
     <div class="col-sm-4">
         <ul class="list-group">
             <li class="list-group-item">评测结果：<span class="float-right">{{record.result}}</span></li>
-            <li class="list-group-item">评测用时：<span class="float-right">{{record.runtime}}</span></li>
-            <li class="list-group-item">评测内存：<span class="float-right">{{record.memory}}</span></li>
+            <li class="list-group-item">评测用时：<span class="float-right">{{record.runtime}} ms</span></li>
+            <li class="list-group-item">评测内存：<span class="float-right">{{record.memory}} kB</span></li>
             <li class="list-group-item">编程语言：<span class="float-right">{{record.language}}{%if record.O2%} O2{%endif%}</span></li>
             <li class="list-group-item">代码长度：<span class="float-right">{{record.code|length}}</span></li>
             <li class="list-group-item">题目：<span class="float-right">{{macros.problemlink_inline(record.pid,proquery)}}</span></li>

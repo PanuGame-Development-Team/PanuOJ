@@ -5,7 +5,7 @@
 * Flask 3.1.0
 * Flask-SQLAlchemy 3.1.1
 * Flask-Migrate 4.1.0
-* fortune-mod version 9708
+* fortune-mod version 9708 at /usr/games/fortune
 ### 构建方法
 1. 安装依赖包
 在项目根目录下执行以下命令安装依赖包：
