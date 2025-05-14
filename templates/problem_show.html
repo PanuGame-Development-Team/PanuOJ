@@ -11,9 +11,7 @@
     </li>
 </ul>
 <div class="tab-content">
-    <div class="tab-pane fade" id="problem" role="tabpanel">
-        <link rel="stylesheet" href="/static/default.css">
-        <link rel="stylesheet" href="/static/code.css">
+    <div class="tab-pane fade pstylerender" id="problem" role="tabpanel">
         {% if problem.background %}
         <h3>背景</h3>
         {{problem.background|render_markdown|safe}}
@@ -33,13 +31,24 @@
         {% if problem.sample %}
         <h3>样例</h3>
         {%for input,output in jsonload(problem.sample)%}
+        <h5>样例 #{{loop.index}}</h5>
         <div class="row">
             <div class="col-md-6">
-                <h4>输入</h4>
+                <a href="javascript:void(0)" id="input{{loop.index}}">复制</a>
+                <script>
+                    document.getElementById("input{{loop.index}}").onclick = ()=>{
+                        copytoclipboard(`{{input}}`);
+                    }
+                </script>
                 <pre><code>{{input|safe}}</code></pre>
             </div>
             <div class="col-md-6">
-                <h4>输出</h4>
+                <a href="javascript:void(0)" id="output{{loop.index}}">复制</a>
+                <script>
+                    document.getElementById("output{{loop.index}}").onclick = ()=>{
+                        copytoclipboard(`{{output}}`);
+                    }
+                </script>
                 <pre><code>{{output|safe}}</code></pre>
             </div>
         </div>
@@ -67,6 +76,20 @@
             <button class="btn btn-primary mt-3" type="submit">提交</button>
         </form>
     </div>
+    <div class="position-fixed p-3" style="z-index: 999; right: 0; bottom: 3rem;width: 20rem;">
+        <div id="copysuccessful" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000">
+            <div class="toast-header">
+                <strong class="mr-auto">PanuOJ</strong>
+                <small>刚刚</small>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body">
+                复制成功！
+            </div>
+        </div>
+    </div>
 </div>
 <script>
     document.getElementById("defaulttab").click();
@@ -79,5 +102,10 @@
             throwOnError : false
         });
     });
+    const copytoclipboard = (text) => {
+        navigator.clipboard.writeText(text).then(() => {
+            $('#copysuccessful').toast('show');
+        });
+    }
 </script>
 {% endblock %}

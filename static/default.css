@@ -1,22 +1,29 @@
-a,a:visited,a:link{
+.pstylerender a,a:visited,a:link{
     text-decoration: none;
     color: rgb(0,128,255);
 }
-a:hover{
+.pstylerender a:hover{
     text-decoration: underline;
     color: rgb(0,64,255);
 }
-code{
+.pstylerender code{
     border: 1px solid #0080FF;
     background-color: rgba(0,128,255,0.1);
     color: #0080FF;
 }
-pre code{
-    border: 0px !important;
-    background-color: transparent !important;
-    color: black !important;
+.pstylerender pre{
+    border: 2px solid #0080FF;
+    padding: 0.25rem;
 }
-blockquote{
+.pstylerender pre code{
+    border: none;
+    background-color: transparent;
+    color: black;
+}
+.pstylerender blockquote{
     border-left: 5px solid rgba(0,128,255,0.3);
     color: rgba(0,96,192,0.5)
+}
+a.btn{
+    color: white !important;
 }

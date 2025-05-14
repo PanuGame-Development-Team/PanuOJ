@@ -78,7 +78,7 @@ class Judger:
                     record.result = "UKE"
                     db.session.add(record)
                     db.session.commit()
-                    syslog(f"Judger {self.judger_id} timeout.",S2NCATEGORY["SUSPICIOUS"])
+                    syslog(f"Judger {self.judger_id} timeout.",S2NCATEGORY["WARNING"])
                 self.judger_busy = 0
                 self.judger_record_id = None
     def submit(self,rid):

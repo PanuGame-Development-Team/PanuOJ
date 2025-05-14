@@ -18,7 +18,7 @@ def user(ses,user):
     pagination = User.query.paginate(page=curpage,per_page=30,max_per_page=30)
     pagecnt = pagination.pages
     users = pagination.items
-    return render_template("admin/user.html",curpage=curpage,pagecnt=pagecnt,users=users,**default_dict(ses[1],request,user))
+    return render_template("admin/user.html",curpage=curpage,pagecnt=pagecnt,users=users,fluid=True,**default_dict(ses[1],request,user))
 @app.route("/problem",methods=["GET"])
 @app.route("/problem/",methods=["GET"])
 @ACCESS_REQUIRE_HTML(["ADMIN"])
@@ -27,13 +27,13 @@ def problem(ses,user):
     pagination = Problem.query.filter(Problem.deleted==0).paginate(page=curpage,per_page=30,max_per_page=30)
     pagecnt = pagination.pages
     problems = pagination.items
-    return render_template("admin/problem.html",curpage=curpage,pagecnt=pagecnt,problems=problems,**default_dict(ses[1],request,user))
+    return render_template("admin/problem.html",curpage=curpage,pagecnt=pagecnt,problems=problems,fluid=True,**default_dict(ses[1],request,user))
 @app.route("/announcement",methods=["GET"])
 @app.route("/announcement/",methods=["GET"])
 @ACCESS_REQUIRE_HTML(["ADMIN"])
 def announcement(ses,user):
     announcements = Announcement.query.all()
-    return render_template("admin/announcement.html",announcements=announcements,**default_dict(ses[1],request,user))
+    return render_template("admin/announcement.html",announcements=announcements,fluid=True,**default_dict(ses[1],request,user))
 @app.route("/user/edit/<int:uid>",methods=["GET","POST"])
 @app.route("/user/edit/<int:uid>/",methods=["GET","POST"])
 @ACCESS_REQUIRE_HTML(["ADMIN"])

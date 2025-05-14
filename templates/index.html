@@ -75,9 +75,7 @@
                             <h5 class="modal-title">{{ anno.title }}</h5>
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
-                        <div class="modal-body">
-                            <link rel="stylesheet" href="/static/default.css">
-                            <link rel="stylesheet" href="/static/code.css">
+                        <div class="modal-body pstylerender">
                             {{ anno.content|render_markdown|safe }}
                         </div>
                     </div>

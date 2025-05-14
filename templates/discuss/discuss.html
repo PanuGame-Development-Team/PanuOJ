@@ -7,7 +7,7 @@
                 <span class="card-title">{{discussion.title}}</span>
                 <span class="float-right">{{discussion.created_time.strftime("%Y/%m/%d %H:%M")}}</span>
             </div>
-            <div class="card-body">
+            <div class="card-body pstylerender">
                 {{discussion.content|render_markdown|safe}}
             </div>
         </div>
