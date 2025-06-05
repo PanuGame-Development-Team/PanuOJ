@@ -7,6 +7,7 @@ from settings import *
 from api import app as api_blueprint
 from admin import app as admin_blueprint
 from discuss import app as discuss_blueprint
+from sys import modules as sysmodules
 app = Flask(APP_NAME)
 app.secret_key = SECRET_KEY
 for conf in CONFIG:
@@ -16,10 +17,11 @@ app.register_blueprint(api_blueprint)
 app.register_blueprint(admin_blueprint)
 app.register_blueprint(discuss_blueprint)
 app.add_template_filter(render_markdown,"render_markdown")
-for i in judgers:
-    judgers[i].init_app(app)
-    judgers[i].start()
-Thread(target=distribute_loop).start()
+if __name__ == "__main__" or "gunicorn" in sysmodules:
+    for i in judgers:
+        judgers[i].init_app(app)
+        judgers[i].start()
+    Thread(target=distribute_loop).start()
 @app.route("/",methods=["GET"])
 def index():
     ses = readSession(request.cookies)
@@ -45,7 +47,6 @@ def login():
             user = User.query.filter_by(username=request.form["username"]).first()
             if user:
                 if check_password_hash(user.password,request.form["password"]):
-                    user.latest_login_time = datetime.now()
                     db.session.add(user)
                     db.session.commit()
                     res = redirect("/")
@@ -60,6 +61,8 @@ def login():
                     user.username = request.form["username"]
                     user.password = generate_password_hash(request.form["password"])
                     user.access = ACCESS["VIEW"]
+                    user.verified = 0
+                    user.verify_expireation = datetime.now() + timedelta(hours=3)
                     db.session.add(user)
                     db.session.commit()
                     flash("注册成功，请重新登录","success")
@@ -89,7 +92,8 @@ def problems(ses,user):
 def problem_show(ses,user,pid):
     problem = Problem.query.get(pid)
     if problem and (problem.deleted == 0 or user.access & ACCESS["ADMIN"]):
-        return render_template("problem_show.html",problem=problem,**default_dict(ses[1],request,user))
+        discussions = Discussion.query.filter(Discussion.pid==pid).order_by(Discussion.id.desc()).limit(20).all()
+        return render_template("problem_show.html",problem=problem,discussions=discussions,**default_dict(ses[1],request,user))
     else:
         abort(404)
 @app.route("/problems/random",methods=["GET"])
@@ -161,7 +165,103 @@ def logout():
     res = redirect("/")
     res.delete_cookie("sessionid")
     return res
-@app.route("/")
+@app.route("/user/<int:uid>",methods=["GET"])
+@app.route("/user/<int:uid>/",methods=["GET"])
+@ACCESS_REQUIRE_HTML(["VIEW"])
+def user_show(ses,user,uid):
+    showuser = User.query.get(uid)
+    if not showuser:
+        abort(404)
+    discussions = Discussion.query.filter(Discussion.uid==uid).order_by(Discussion.id.desc()).limit(20).all()
+    return render_template("user_show.html",showuser=showuser,discussions=discussions,**default_dict(ses[1],request,user))
+@app.route("/user/<int:uid>/edit",methods=["GET","POST"])
+@app.route("/user/<int:uid>/edit/",methods=["GET","POST"])
+@ACCESS_REQUIRE_HTML(["VIEW"])
+def user_edit(ses,user,uid):
+    showuser = User.query.get(uid)
+    if not showuser:
+        abort(404)
+    if not showuser.verified:
+        flash("用户未验证。","danger")
+        return redirect("/user/%d/"%uid)
+    if user != showuser:
+        flash("权限不足。","danger")
+        return redirect("/user/%d/"%uid)
+    if request.method == "POST":
+        logoutrequired = False
+        if lin(["icon"],request.files) and lin(["mainpage","oldpassword","password"],request.form):
+            icon = request.files["icon"]
+            if icon:
+                filename = "static/icons/" + uuidgen() + "." + icon.filename.split(".")[-1]
+                icon.save(filename)
+                showuser.icon = "/" + filename
+            showuser.mainpage = request.form["mainpage"]
+            if request.form["oldpassword"] and request.form["password"]:
+                if check_password_hash(showuser.password,request.form["oldpassword"]):
+                    if len(request.form["password"]) >= 8:
+                        showuser.password = generate_password_hash(request.form["password"])
+                        logoutrequired = True
+                    else:
+                        flash("新密码长度必须大于8位。","danger")
+                        return redirect("/user/%d/edit/"%uid)
+                else:
+                    flash("旧密码错误。","danger")
+                    return redirect("/user/%d/edit/"%uid)
+        else:
+            flash("表单信息不全。","danger")
+            return redirect("/user/%d/edit/"%uid)
+        db.session.add(showuser)
+        db.session.commit()
+        flash("修改成功。","success")
+        if not logoutrequired:
+            return redirect("/user/%d/"%uid)
+        else:
+            return logout()
+    return render_template("user_edit.html",showuser=showuser,**default_dict(ses[1],request,user))
+@app.route("/verify",methods=["GET","POST"])
+@app.route("/verify/",methods=["GET","POST"])
+@app.route("/verify/<token>",methods=["GET"])
+@app.route("/verify/<token>/",methods=["GET"])
+@ACCESS_REQUIRE_HTML(["VIEW"])
+def verify(ses,user,token=None):
+    if not user.verified:
+        if request.method == "POST":
+            if not lin(["email"],request.form):
+                flash("表单信息不全。","danger")
+                return redirect("/verify/")
+            if User.query.filter_by(email=request.form["email"]).first():
+                flash("该邮箱已被注册。","danger")
+                return redirect("/verify/")
+            ses[1]["email"] = request.form["email"]
+            ses[1]["emailexpireation"] = (datetime.now() + timedelta(minutes=5)).strftime("%Y/%m/%d %H:%M:%S")
+            gentoken = uuidgen()
+            ses[1]["token"] = gentoken
+            if send_SMTP("你的验证令牌为：<strong><b><i>%s</b></i></strong>"%gentoken,SMTP_USER,ses[1]["email"],SMTP_PASSWD,SMTP_SERVICE,"PanuOJ Email verification"):
+                saveSession(request.cookies.get("sessionid"),ses[1])
+                return redirect("/verify/")
+            else:
+                flash("邮件发送失败。","danger")
+                syslog("用户%s验证邮件发送失败"%user.username,S2NCATEGORY["WARNING"],user.id)
+                return redirect("/verify/")
+        if not "email" in ses[1] or datetime.now() > datetime.strptime(ses[1]["emailexpireation"],"%Y/%m/%d %H:%M:%S"):
+            return render_template("verify.html",formtype="email",**default_dict(ses[1],request,user))
+        if token:
+            if token == ses[1]["token"]:
+                user.verified = 1
+                user.email = ses[1]["email"]
+                db.session.add(user)
+                db.session.commit()
+                flash("验证成功","success")
+                syslog("用户%s验证成功"%user.username,S2NCATEGORY["INFO"],user.id)
+                return redirect("/user/%d/"%user.id)
+            else:
+                flash("验证失败。","danger")
+                syslog("用户%s验证失败"%user.username,S2NCATEGORY["SUSPICIOUS"],user.id)
+                return redirect("/verify/")
+        return render_template("verify.html",formtype="token",**default_dict(ses[1],request,user))
+    else:
+        flash("用户已验证。","danger")
+        return redirect("/user/%d/"%user.id)
 @app.route("/favicon.ico")
 def favicon():
     return send_from_directory(ospath.join(app.root_path,'static'),'favicon.ico',mimetype='image/jpeg')
@@ -173,5 +273,5 @@ def internal_server_error(e):
     err = traceback.format_exc()
     syslog("服务器错误：%s"%err.strip("\n").split("\n")[-1],S2NCATEGORY["ERROR"])
     return render_template("500.html",error=err,APP_VERSYM=APP_VERSYM,headertype="error"),500
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(host=HOST,port=PORT,debug=False)

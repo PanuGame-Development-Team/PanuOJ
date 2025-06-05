@@ -26,3 +26,19 @@
 {% macro userlink_inline(uid,uquery) %}
 {%with user=uquery.get(uid)%}{%if not user%}<span class="text-danger">（未找到）</span>{%else%}<a href="/user/{{user.id}}/" style="color:inherit;">{{user.username}}</a>{%endif%}{%endwith%}
 {% endmacro %}
+{% macro discussion_card(discussion,uquery,proquery) %}
+<div class="card mb-3">
+    <div class="card-header">
+        <a href="/discuss/{{ discussion.id }}/">{{ discussion.title }}</a>
+        {%if discussion.top%}<span class="badge badge-primary">置顶</span>{%endif%}
+        <span class="text-muted float-right">{{ discussion.created_time.strftime("%Y/%m/%d") }}</span>
+    </div>
+    <div class="card-body">
+        <span class="text-muted">楼主: {{ userlink_inline(discussion.uid,uquery) }}</span><br>
+        <span class="text-muted">题目：{{ problemlink_inline(discussion.pid,proquery)}}</span><br>
+    </div>
+</div>
+{%endmacro%}
+{% macro show_access(user,split_access) %}
+<span class="text-monospace">{%if split_access(user)["view"]%}V{%else%}-{%endif%}{%if split_access(user)["submit"]%}S{%else%}-{%endif%}{%if split_access(user)["publish"]%}P{%else%}-{%endif%}{%if split_access(user)["admin"]%}A{%else%}-{%endif%}</span>
+{% endmacro %}

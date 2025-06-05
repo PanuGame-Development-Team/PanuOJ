@@ -1,0 +1,27 @@
+{%extends '_base.html'%}
+{%block content%}
+<div class="card ml-auto mr-auto mt-3" style="width: 18rem;">
+    <div class="card-body">
+        <form action="" method="post" enctype="multipart/form-data">
+            <input type="password" hidden autocomplete="new-password"/>
+            <div class="form-group">
+                <label for="oldpassword">原密码（若不更改密码无需填写）</label>
+                <input type="password" class="form-control" name="oldpassword" placeholder="密码"/>
+            </div>
+            <div class="form-group">
+                <label for="password">新密码</label>
+                <input type="password" class="form-control" name="password" placeholder="密码"/>
+            </div>
+            <div class="form-group">
+                <label for="mainpage">主页内容</label>
+                <textarea class="form-control" name="mainpage" rows="10">{{user.mainpage}}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="icon">头像</label>
+                <input type="file" class="form-control-file" name="icon"/>
+            </div>
+            <center><button class="btn btn-danger" type="submit">提交更改</button></center>
+        </form>
+    </div>
+</div>
+{%endblock%}

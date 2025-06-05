@@ -55,6 +55,9 @@ def user_edit(ses,user,uid):
                 access |= ACCESS["ADMIN"]
             if request.form.get("publish",None) == "on":
                 access |= ACCESS["PUBLISH"]
+            if not aduser.verified and aduser.access != access:
+                flash("用户仍未通过验证，权限修改被驳回。","danger")
+                return redirect("/admin/user/edit/" + str(uid) + "/")
             aduser.access = access
             db.session.add(aduser)
             Session.query.filter_by(uid=uid).delete()

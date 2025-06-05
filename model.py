@@ -27,6 +27,13 @@ class User(db.Model):
     access = db.Column(db.Integer,nullable=False,default=0)
     created_time = db.Column(db.DateTime,default=datetime.now)
     latest_login_time = db.Column(db.DateTime,default=datetime.now)
+    verified = db.Column(db.Integer,nullable=False,default=0)
+    # Use the comment below to migrate and upgrade the database,then migrate again.
+    # verified = db.Column(db.Integer,server_default="1")
+    email = db.Column(db.String(128),unique=True)
+    verify_expireation = db.Column(db.DateTime,nullable=True)
+    icon = db.Column(db.String(128),nullable=False,default="/static/usericon.png")
+    mainpage = db.Column(db.Text,server_default="这个人很懒，TA的主页一片空白。")
 class Problem(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     title = db.Column(db.Unicode(64),nullable=False,unique=True,index=True)

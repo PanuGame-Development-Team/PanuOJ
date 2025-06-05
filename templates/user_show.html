@@ -1,0 +1,64 @@
+{%extends "_base.html"%}
+{%block content%}
+<div class="row">
+    <div class="col-md-4">
+        <ul class="list-group">
+            <li class="list-group-item">
+                <center><img src="{{showuser.icon}}" class="w-50"></center>
+            </li>
+            <li class="list-group-item">
+                <span>用户ID：{{showuser.id}}</span>
+            </li>
+            <li class="list-group-item">
+                <span>用户名：{{showuser.username}}</span>
+                {%if showuser.verified%}
+                <span class="badge bg-primary text-white">已验证</span>
+                {%else%}
+                <del class="text-danger">未验证</del>
+                {%endif%}
+            </li>
+            <li class="list-group-item">
+                <span>权限等级：{{macros.show_access(showuser,split_access)}}</span>
+            </li>
+            <li class="list-group-item">
+                <span>邮箱：{{showuser.email}}</span>
+            </li>
+            <li class="list-group-item">
+                <span>注册时间：{{showuser.created_time.strftime("%Y/%m/%d %H:%M")}}</span>
+            </li>
+            <li class="list-group-item">
+                <span>最近在线时间：{{showuser.latest_login_time.strftime("%Y/%m/%d %H:%M")}}</span>
+            </li>
+            {%if not showuser.verified%}
+            <li class="list-group-item">
+                验证期限：{{showuser.verify_expireation.strftime("%Y/%m/%d %H:%M")}}
+            </li>
+            {%endif%}
+            {%if showuser.id == user.id%}
+            <li class="list-group-item">
+                {%if user.verified%}
+                <a class="btn btn-primary" href="/user/{{showuser.id}}/edit/">编辑</a>
+                {%else%}
+                <a class="btn btn-warning" href="/verify/">验证邮箱</a>
+                {%endif%}
+            </li>
+            {%endif%}
+        </ul>
+    </div>
+    <div class="col-md-8">
+        <span>TA的主页</span>
+        <div class="card mb-3">
+            <div class="card-body pstylerender">
+                {{showuser.mainpage|render_markdown|safe}}
+            </div>
+        </div>
+        <hr>
+        <span>TA的讨论</span>
+        {%for discussion in discussions%}
+        {{macros.discussion_card(discussion,uquery,proquery)}}
+        {%else%}
+        <br>TA没有发布过讨论。
+        {%endfor%}
+    </div>
+</div>
+{%endblock%}

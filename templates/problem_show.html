@@ -1,93 +1,106 @@
 {% extends "_base.html" %}
 {% block content %}
 <center><h1>{{problem.title}}</h1></center>
-<span class="float-right">内存:{{problem.memory_limit}}KB 时间:{{problem.time_limit}}ms{%if problem.deleted != 0%} <del class="text-danger">已删除</del>{%endif%}</span>
-<ul class="nav nav-tabs" role="tablist">
-    <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" id="defaulttab" href="#problem" role="tab">题目</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#submit" role="tab">提交</a>
-    </li>
-</ul>
-<div class="tab-content">
-    <div class="tab-pane fade pstylerender" id="problem" role="tabpanel">
-        {% if problem.background %}
-        <h3>背景</h3>
-        {{problem.background|render_markdown|safe}}
-        {% endif %}
-        {% if problem.description %}
-        <h3>题目描述</h3>
-        {{problem.description|render_markdown|safe}}
-        {% endif %}
-        {% if problem.inputformat %}
-        <h3>输入格式</h3>
-        {{problem.inputformat|render_markdown|safe}}
-        {% endif %}
-        {% if problem.outputformat %}
-        <h3>输出格式</h3>
-        {{problem.outputformat|render_markdown|safe}}
-        {% endif %}
-        {% if problem.sample %}
-        <h3>样例</h3>
-        {%for input,output in jsonload(problem.sample)%}
-        <h5>样例 #{{loop.index}}</h5>
-        <div class="row">
-            <div class="col-md-6">
-                <a href="javascript:void(0)" id="input{{loop.index}}">复制</a>
-                <script>
-                    document.getElementById("input{{loop.index}}").onclick = ()=>{
-                        copytoclipboard(`{{input}}`);
-                    }
-                </script>
-                <pre><code>{{input|safe}}</code></pre>
+<div class="row">
+    <div class="col-md-12"><span class="float-right">内存:{{problem.memory_limit}}KB 时间:{{problem.time_limit}}ms{%if problem.deleted != 0%} <del class="text-danger">已删除</del>{%endif%}</span></div>
+    <div class="col-md-8">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" id="defaulttab" href="#problem" role="tab">题目</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#submit" role="tab">提交</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade" id="problem" role="tabpanel">
+                <div class="pstylerender" style="border: 1px solid rgba(0,0,0,.125);padding: .75rem 1.25rem;">
+                    {% if problem.background %}
+                    <h3>背景</h3>
+                    {{problem.background|render_markdown|safe}}
+                    {% endif %}
+                    {% if problem.description %}
+                    <h3>题目描述</h3>
+                    {{problem.description|render_markdown|safe}}
+                    {% endif %}
+                    {% if problem.inputformat %}
+                    <h3>输入格式</h3>
+                    {{problem.inputformat|render_markdown|safe}}
+                    {% endif %}
+                    {% if problem.outputformat %}
+                    <h3>输出格式</h3>
+                    {{problem.outputformat|render_markdown|safe}}
+                    {% endif %}
+                    {% if problem.sample %}
+                    <h3>样例</h3>
+                    {%for input,output in jsonload(problem.sample)%}
+                    <h5>样例 #{{loop.index}}</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="javascript:void(0)" id="input{{loop.index}}">复制</a>
+                            <script>
+                                document.getElementById("input{{loop.index}}").onclick = ()=>{
+                                    copytoclipboard(`{{input}}`);
+                                }
+                            </script>
+                            <pre><code>{{input|safe}}</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="javascript:void(0)" id="output{{loop.index}}">复制</a>
+                            <script>
+                                document.getElementById("output{{loop.index}}").onclick = ()=>{
+                                    copytoclipboard(`{{output}}`);
+                                }
+                            </script>
+                            <pre><code>{{output|safe}}</code></pre>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p>暂无样例</p>
+                    {% endfor %}
+                    {% endif %}
+                    {% if problem.hint %}
+                    <h3>提示</h3>
+                    {{problem.hint|render_markdown|safe}}
+                    {% endif %}
+                </div>
             </div>
-            <div class="col-md-6">
-                <a href="javascript:void(0)" id="output{{loop.index}}">复制</a>
-                <script>
-                    document.getElementById("output{{loop.index}}").onclick = ()=>{
-                        copytoclipboard(`{{output}}`);
-                    }
-                </script>
-                <pre><code>{{output|safe}}</code></pre>
+            <div class="tab-pane fade" id="submit" role="tabpanel">
+                <form action="/submit/{{problem.id}}" method="post">
+                    <select class="form-control" style="width: 10rem;" name="language">
+                        {% for lang in LANGUAGES %}
+                        <option value="{{lang}}">{{lang}}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" id="O2" name="O2" value="O2">
+                        <label class="form-check-label" for="O2">氧气加持！！！</label>
+                    </div>
+                    <textarea class="form-control" name="code" rows="13"></textarea>
+                    <button class="btn btn-primary mt-3" type="submit">提交</button>
+                </form>
             </div>
         </div>
-        {% else %}
-        <p>暂无样例</p>
-        {% endfor %}
-        {% endif %}
-        {% if problem.hint %}
-        <h3>提示</h3>
-        {{problem.hint|render_markdown|safe}}
-        {% endif %}
     </div>
-    <div class="tab-pane fade" id="submit" role="tabpanel">
-        <form action="/submit/{{problem.id}}" method="post">
-            <select class="form-control" style="width: 10rem;" name="language">
-                {% for lang in LANGUAGES %}
-                <option value="{{lang}}">{{lang}}</option>
-                {% endfor %}
-            </select>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" id="O2" name="O2" value="O2">
-                <label class="form-check-label" for="O2">氧气加持！！！</label>
-            </div>
-            <textarea class="form-control" name="code" rows="13"></textarea>
-            <button class="btn btn-primary mt-3" type="submit">提交</button>
-        </form>
+    <div class="col-md-4 mt-5">
+        {%for discussion in discussions%}
+        {{macros.discussion_card(discussion,uquery,proquery)}}
+        {%else%}
+        （没有相关联的讨论）
+        {%endfor%}
     </div>
-    <div class="position-fixed p-3" style="z-index: 999; right: 0; bottom: 3rem;width: 20rem;">
-        <div id="copysuccessful" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000">
-            <div class="toast-header">
-                <strong class="mr-auto">PanuOJ</strong>
-                <small>刚刚</small>
-                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="toast-body">
-                复制成功！
-            </div>
+</div>
+<div class="position-fixed p-3" style="z-index: 999; right: 0; bottom: 3rem;width: 20rem;">
+    <div id="copysuccessful" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000">
+        <div class="toast-header">
+            <strong class="mr-auto">PanuOJ</strong>
+            <small>刚刚</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body">
+            复制成功！
         </div>
     </div>
 </div>

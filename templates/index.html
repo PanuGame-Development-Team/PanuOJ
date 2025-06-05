@@ -45,17 +45,7 @@
         <div class="row">
             {%for discussion in discussions%}
             <div class="col-sm-6">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <a href="/discuss/{{ discussion.id }}/">{{ discussion.title }}</a>
-                        {%if discussion.top%}<span class="badge badge-primary">置顶</span>{%endif%}
-                        <span class="text-muted float-right">{{ discussion.created_time.strftime("%Y/%m/%d") }}</span>
-                    </div>
-                    <div class="card-body">
-                        <span class="text-muted">楼主: {{ macros.userlink_inline(discussion.uid,uquery) }}</span><br>
-                        <span class="text-muted">题目：{{ macros.problemlink_inline(discussion.pid,proquery)}}</span><br>
-                    </div>
-                </div>
+                {{macros.discussion_card(discussion,uquery,proquery)}}
             </div>
             {%endfor%}
         </div>

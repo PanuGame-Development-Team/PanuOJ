@@ -23,18 +23,30 @@ sudo yum install fortune-mod
 2. 创建设置文件
 在项目根目录下创建 `settings.py` 文件，并添加以下内容：
 ```python
-GARAGE_AVAILABLE = []                                  # 可用的车库列表
-TYPE_OF_MACHINE = []                                   # 设备类型列表
+from os import urandom
 CONFIG = {
     "SQLALCHEMY_DATABASE_URI":"sqlite:///db.sqlite3",  # 数据库URI，这里是测试数据库，如需生产部署请使用高性能数据库
-    "SQLALCHEMY_TRACK_MODIFICATIONS":False
+    'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+    "SQLALCHEMY_ENGINE_OPTIONS": {
+        "pool_size": 10,
+        "pool_recycle": 1800,
+        "pool_pre_ping": True,
+    }
 }
+SECRET_KEY = urandom(32)
+HOST = "127.0.0.1"      # 主机地址
+PORT = 7695             # 端口
+JUDGER_LIST = [["Mercury","xxx.xxx.xxx.xxx",34734]]    # 评测机列表
+SMTP_SERVICE = "smtp.xxxxxxx.com"                      # smtp服务
+SMTP_USER = "xxx@xxxxxxx.com"                          # 开通smtp服务的邮箱
+SMTP_PASSWD = "xxxxxxxxxxxxxxxxxxxxxx"                 # 密钥
 ```
 3. 修改 `judgelib.py` 中的 `judgers`，以添加所有稳定评测机。
 4. 创建数据库
-在项目根目录下执行以下命令创建数据库以及所需文件夹（因为评测机模块缘故，需要手动 `Ctrl + C` 退出：
+在项目根目录下执行以下命令创建数据库以及所需文件夹：
 ```bash
 mkdir testcases
+mkdir -r static/icons
 python3 init_db.py
 python3 migrate.py init
 ```
