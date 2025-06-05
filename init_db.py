@@ -14,6 +14,7 @@ with app.app_context():
     password = uuid4().hex.upper()
     print("SYSTEM password resetted:",password)
     SYSTEM.password = generate_password_hash(password)
+    SYSTEM.access = 0
     for access in ACCESS:
         SYSTEM.access |= ACCESS[access]
     db.session.add(SYSTEM)
