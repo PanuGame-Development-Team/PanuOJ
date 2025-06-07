@@ -27,7 +27,7 @@ def default_dict(session,request,user,loginpage=False):
     dic["user"] = user
     if user:
         if not user.verified:
-            flash("您的账号尚未通过验证，请前往主页进行验证。","warning")
+            flash("您的账号尚未通过验证，请前往用户主页进行验证。","warning")
         user.latest_login_time = datetime.now()
         db.session.add(user)
         db.session.commit()

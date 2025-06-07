@@ -21,7 +21,8 @@ if __name__ == "__main__" or "gunicorn" in sysmodules:
     for i in judgers:
         judgers[i].init_app(app)
         judgers[i].start()
-    Thread(target=distribute_loop).start()
+    for i in userrecycler.pool:
+        userrecycler.pool[i].app = app
 @app.route("/",methods=["GET"])
 def index():
     ses = readSession(request.cookies)
@@ -66,6 +67,7 @@ def login():
                     db.session.add(user)
                     db.session.commit()
                     flash("注册成功，请重新登录","success")
+                    userrecycler.put(str(user.id))
                     syslog("用户%s注册"%user.username,S2NCATEGORY["SUSPICIOUS"],user.id)
                     return redirect("/login/")
                 else:
@@ -127,7 +129,7 @@ def submit(ses,user,pid):
         rec.result = "WAITING"
         db.session.add(rec)
         db.session.commit()
-        judge_queue.append(rec.id)
+        judgequeue.put(str(rec.id))
         return redirect("/record/%d/"%rec.id)
     else:
         flash("权限不足。","danger")
@@ -151,13 +153,14 @@ def record(ses,user,rid):
 def judgerstatus(ses,user):
     stat = {}
     for judger in judgers:
-        if judgers[judger].judger_online:
-            if judgers[judger].judger_busy:
-                stat[judger] = "busy"
-            else:
-                stat[judger] = "idle"
-        else:
+        if judgers[judger].error:
+            stat[judger] = "error"
+        elif not judgers[judger].available:
             stat[judger] = "offline"
+        elif judgers[judger].busy:
+            stat[judger] = "busy"
+        else:
+            stat[judger] = "idle"
     return render_template("judgerstatus.html",stat=stat,**default_dict(ses[1],request,user))
 @app.route("/logout",methods=["GET"])
 @app.route("/logout/",methods=["GET"])
@@ -236,23 +239,20 @@ def verify(ses,user,token=None):
             ses[1]["emailexpireation"] = (datetime.now() + timedelta(minutes=5)).strftime("%Y/%m/%d %H:%M:%S")
             gentoken = uuidgen()
             ses[1]["token"] = gentoken
-            if send_SMTP("你的验证令牌为：<strong><b><i>%s</b></i></strong>"%gentoken,SMTP_USER,ses[1]["email"],SMTP_PASSWD,SMTP_SERVICE,"PanuOJ Email verification"):
-                saveSession(request.cookies.get("sessionid"),ses[1])
-                return redirect("/verify/")
-            else:
-                flash("邮件发送失败。","danger")
-                syslog("用户%s验证邮件发送失败"%user.username,S2NCATEGORY["WARNING"],user.id)
-                return redirect("/verify/")
+            mailqueue.put(dumps({"email":ses[1]["email"],"gentoken":gentoken}))
+            saveSession(request.cookies.get("sessionid"),ses[1])
+            return redirect("/verify/")
         if not "email" in ses[1] or datetime.now() > datetime.strptime(ses[1]["emailexpireation"],"%Y/%m/%d %H:%M:%S"):
             return render_template("verify.html",formtype="email",**default_dict(ses[1],request,user))
         if token:
             if token == ses[1]["token"]:
                 user.verified = 1
                 user.email = ses[1]["email"]
+                user.access |= ACCESS["SUBMIT"]
                 db.session.add(user)
                 db.session.commit()
                 flash("验证成功","success")
-                syslog("用户%s验证成功"%user.username,S2NCATEGORY["INFO"],user.id)
+                syslog("用户%s验证成功，自动授予提交权限。"%user.username,S2NCATEGORY["INFO"],user.id)
                 return redirect("/user/%d/"%user.id)
             else:
                 flash("验证失败。","danger")

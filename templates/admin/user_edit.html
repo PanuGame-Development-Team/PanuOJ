@@ -22,6 +22,10 @@
                 <input type="checkbox" class="form-check-input" name="admin"{%if split_access(aduser)["admin"]%} checked{%endif%}/>
                 <label class="form-check-label" for="admin">ADMIN</label>
             </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" name="verified"{%if aduser.verified%} checked{%endif%}/>
+                <label class="form-check-label" for="verified">手动验证（无法撤销）</label>
+            </div>
             <center><button class="btn btn-danger" type="submit">提交更改</button></center>
         </form>
     </div>

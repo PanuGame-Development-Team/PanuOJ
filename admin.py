@@ -47,6 +47,10 @@ def user_edit(ses,user,uid):
             access = 0
             if request.form["password"]:
                 aduser.password = generate_password_hash(request.form["password"])
+            if request.form.get("verified",None) == "on":
+                aduser.verified = 1
+                if not aduser.email:
+                    aduser.email = aduser.username + "@PanuOJ.local"
             if request.form.get("view",None) == "on":
                 access |= ACCESS["VIEW"]
             if request.form.get("submit",None) == "on":
