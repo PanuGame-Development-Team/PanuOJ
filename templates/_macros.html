@@ -1,6 +1,6 @@
-{% macro pagination_nav(prefix,pagecnt,curpage) %}
+{% macro pagination_nav(prefix,pagecnt,curpage,pset=None) %}
 <ul class="pagination">
-    <li class="page-item"><a class="page-link" href="/{{prefix}}/?page=1"><span>&laquo;</span></a></li>
+    <li class="page-item"><a class="page-link" href="/{{prefix}}/?page=1&problemset={{pset}}"><span>&laquo;</span></a></li>
     {%if pagecnt <= 5%}
     {%set start = 1%}
     {%set end = pagecnt%}
@@ -15,9 +15,9 @@
     {%set end = curpage + 2%}
     {%endif%}
     {%for i in range(start,end+1)%}
-    <li class="page-item{%if i==curpage%} active{%endif%}"><a class="page-link" href="/{{prefix}}/?page={{i}}">{{i}}</a></li>
+    <li class="page-item{%if i==curpage%} active{%endif%}"><a class="page-link" href="/{{prefix}}/?page={{i}}&problemset={{pset}}">{{i}}</a></li>
     {%endfor%}
-    <li class="page-item"><a class="page-link" href="/{{prefix}}/?page={{pagecnt}}"><span>&raquo;</span></a></li>
+    <li class="page-item"><a class="page-link" href="/{{prefix}}/?page={{pagecnt}}&problemset={{pset}}"><span>&raquo;</span></a></li>
 </ul>
 {% endmacro %}
 {% macro problemlink_inline(pid,proquery) %}

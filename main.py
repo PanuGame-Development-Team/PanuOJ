@@ -8,6 +8,7 @@ from api import app as api_blueprint
 from admin import app as admin_blueprint
 from discuss import app as discuss_blueprint
 from sys import modules as sysmodules
+from rmj import remotejudges,rmjqueue
 app = Flask(APP_NAME)
 app.secret_key = SECRET_KEY
 for conf in CONFIG:
@@ -23,6 +24,8 @@ if __name__ == "__main__" or "gunicorn" in sysmodules:
         judgers[i].start()
     for i in userrecycler.pool:
         userrecycler.pool[i].app = app
+    for i in rmjqueue.pool:
+        rmjqueue.pool[i].app = app
 @app.route("/",methods=["GET"])
 def index():
     ses = readSession(request.cookies)
@@ -84,18 +87,41 @@ def login():
 @ACCESS_REQUIRE_HTML(["VIEW"])
 def problems(ses,user):
     curpage = int(request.args.get("page",1))
-    paginate = Problem.query.filter(Problem.deleted==0).paginate(page=curpage,per_page=30,max_per_page=30)
-    pagecnt = paginate.pages
-    problems = paginate.items
-    return render_template("problems.html",curpage=curpage,pagecnt=pagecnt,problems=problems,**default_dict(ses[1],request,user))
+    problemset = request.args.get("problemset","PanuOJ.local")
+    if problemset in remotejudges:
+        problems,pagecnt = remotejudges[problemset].getproblemlist(curpage)
+    else:
+        problemset = "PanuOJ.local"
+        paginate = Problem.query.filter(Problem.deleted==0).paginate(page=curpage,per_page=30,max_per_page=30)
+        pagecnt = paginate.pages
+        problems = paginate.items
+    problemsets = ["PanuOJ.local"] + list(remotejudges.keys())
+    return render_template("problems.html",problemset=problemset,curpage=curpage,pagecnt=pagecnt,problems=problems,problemsets=problemsets,**default_dict(ses[1],request,user))
 @app.route("/problems/<int:pid>",methods=["GET"])
 @app.route("/problems/<int:pid>/",methods=["GET"])
 @ACCESS_REQUIRE_HTML(["VIEW"])
 def problem_show(ses,user,pid):
-    problem = Problem.query.get(pid)
+    problemset = request.args.get("problemset","PanuOJ.local")
+    if problemset in remotejudges:
+        problem,allow_submit = remotejudges[problemset].getproblem(pid)
+<<<<<<< HEAD
+        languages = list(remotejudges[problemset].languages)
+=======
+>>>>>>> 1605e82a7143aa0556ea80881789869aed989d74
+    else:
+        problemset = "PanuOJ.local"
+        problem = Problem.query.get(pid)
+        allow_submit = True
+<<<<<<< HEAD
+        languages = LANGUAGES
     if problem and (problem.deleted == 0 or user.access & ACCESS["ADMIN"]):
         discussions = Discussion.query.filter(Discussion.pid==pid).order_by(Discussion.id.desc()).limit(20).all()
-        return render_template("problem_show.html",problem=problem,discussions=discussions,**default_dict(ses[1],request,user))
+        return render_template("problem_show.html",languages=languages,problemset=problemset,allow_submit=allow_submit,problem=problem,discussions=discussions,**default_dict(ses[1],request,user))
+=======
+    if problem and (problem.deleted == 0 or user.access & ACCESS["ADMIN"]):
+        discussions = Discussion.query.filter(Discussion.pid==pid).order_by(Discussion.id.desc()).limit(20).all()
+        return render_template("problem_show.html",problemset=problemset,allow_submit=allow_submit,problem=problem,discussions=discussions,**default_dict(ses[1],request,user))
+>>>>>>> 1605e82a7143aa0556ea80881789869aed989d74
     else:
         abort(404)
 @app.route("/problems/random",methods=["GET"])
@@ -104,36 +130,58 @@ def problem_show(ses,user,pid):
 def random_problem(ses,user):
     problem = Problem.query.filter(Problem.deleted==0).order_by(func.random()).first()
     return redirect("/problems/%d/"%problem.id)
-@app.route("/submit/<int:pid>",methods=["POST"])
-@app.route("/submit/<int:pid>/",methods=["POST"])
+@app.route("/submit/<pid>",methods=["POST"])
+@app.route("/submit/<pid>/",methods=["POST"])
 @ACCESS_REQUIRE_HTML(["SUBMIT"])
 def submit(ses,user,pid):
-    problem:Problem = Problem.query.get(pid)
-    problem.submit += 1
-    db.session.add(problem)
-    db.session.commit()
-    if not lin(["code","language"],request.form):
-        flash("表单信息不全。","danger")
-        return redirect("/problems/%d/"%pid)
-    if not problem:
-        flash("题目不存在。","danger")
-        return redirect("/problems/")
-    if user.access & ACCESS["SUBMIT"]:
+    problemset = request.args.get("problemset","PanuOJ.local")
+    if problemset in remotejudges:
         rec = Record()
         rec.code = request.form["code"]
-        rec.O2 = 1 if request.form.get("O2") else 0
+        rec.O2 = 0
         rec.language = request.form["language"]
-        rec.pid = pid
+        rec.pid = None
+        rec.rmjname = problemset
+        rec.rmjpid = pid
         rec.uid = user.id
         rec.submit_time = datetime.now()
         rec.result = "WAITING"
         db.session.add(rec)
         db.session.commit()
-        judgequeue.put(str(rec.id))
-        return redirect("/record/%d/"%rec.id)
+        rmjqueue.put(dumps({"name":problemset,"record":rec.id,"user":user.id,"problem_id":pid}))
+        return redirect("/record/%d"%rec.id)
     else:
-        flash("权限不足。","danger")
-        return redirect("/problems/%d/"%pid)
+        try:
+            pid = int(pid)
+        except:
+            flash("题目不存在。","danger")
+            return redirect("/")
+        problem:Problem = Problem.query.get(pid)
+        problem.submit += 1
+        db.session.add(problem)
+        db.session.commit()
+        if not lin(["code","language"],request.form):
+            flash("表单信息不全。","danger")
+            return redirect("/problems/%d/"%pid)
+        if not problem:
+            flash("题目不存在。","danger")
+            return redirect("/problems/")
+        if user.access & ACCESS["SUBMIT"]:
+            rec = Record()
+            rec.code = request.form["code"]
+            rec.O2 = 1 if request.form.get("O2") else 0
+            rec.language = request.form["language"]
+            rec.pid = pid
+            rec.uid = user.id
+            rec.submit_time = datetime.now()
+            rec.result = "WAITING"
+            db.session.add(rec)
+            db.session.commit()
+            judgequeue.put(str(rec.id))
+            return redirect("/record/%d/"%rec.id)
+        else:
+            flash("权限不足。","danger")
+            return redirect("/problems/%d/"%pid)
 @app.route("/record/<int:rid>",methods=["GET"])
 @app.route("/record/<int:rid>/",methods=["GET"])
 @ACCESS_REQUIRE_HTML(["SUBMIT"])
@@ -213,6 +261,11 @@ def user_edit(ses,user,uid):
         else:
             flash("表单信息不全。","danger")
             return redirect("/user/%d/edit/"%uid)
+        rmjuser = {}
+        for i in remotejudges:
+            if request.form.get("username-" + i) and request.form.get("password-" + i):
+                rmjuser[i] = {"username":request.form.get("username-" + i),"password":request.form.get("password-" + i)}
+        showuser.rmjuser = dumps(rmjuser)
         db.session.add(showuser)
         db.session.commit()
         flash("修改成功。","success")
@@ -220,7 +273,7 @@ def user_edit(ses,user,uid):
             return redirect("/user/%d/"%uid)
         else:
             return logout()
-    return render_template("user_edit.html",showuser=showuser,**default_dict(ses[1],request,user))
+    return render_template("user_edit.html",remotejudges=remotejudges,showuser=showuser,**default_dict(ses[1],request,user))
 @app.route("/verify",methods=["GET","POST"])
 @app.route("/verify/",methods=["GET","POST"])
 @app.route("/verify/<token>",methods=["GET"])

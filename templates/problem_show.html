@@ -9,7 +9,11 @@
                 <a class="nav-link" data-toggle="tab" id="defaulttab" href="#problem" role="tab">题目</a>
             </li>
             <li class="nav-item">
+                {%if allow_submit %}
                 <a class="nav-link" data-toggle="tab" href="#submit" role="tab">提交</a>
+                {%else%}
+                <a class="nav-link disabled" href="#">提交</a>
+                {%endif%}
             </li>
         </ul>
         <div class="tab-content">
@@ -66,9 +70,9 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="submit" role="tabpanel">
-                <form action="/submit/{{problem.id}}" method="post">
+                <form action="/submit/{{problem.id}}/?problemset={{problemset}}" method="post">
                     <select class="form-control" style="width: 10rem;" name="language">
-                        {% for lang in LANGUAGES %}
+                        {% for lang in languages %}
                         <option value="{{lang}}">{{lang}}</option>
                         {% endfor %}
                     </select>

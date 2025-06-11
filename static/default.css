@@ -24,6 +24,20 @@
     border-left: 5px solid rgba(0,128,255,0.3);
     color: rgba(0,96,192,0.5)
 }
+.pstylerender table{
+    border: 1px solid #0080FF;
+}
+.pstylerender table th{
+    background-color: rgba(0,128,255,0.1);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    color: #0080FF;
+}
+.pstylerender table td{
+    border: 1px solid #0080FF;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
 a.btn{
     color: white !important;
 }

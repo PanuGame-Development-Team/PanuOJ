@@ -60,7 +60,7 @@
 </script>
 <div class="row">
     <div class="col-sm-8">
-        {%if record.result != "CE" and record.result != "WAITING" and record.result != "UKE"%}
+        {%if record.result != "CE" and record.result != "WAITING" and record.result != "UKE" and record.result != "RMJLE"%}
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -93,7 +93,10 @@
             <li class="list-group-item">评测内存：<span class="float-right">{{record.memory}} kB</span></li>
             <li class="list-group-item">编程语言：<span class="float-right">{{record.language}}{%if record.O2%} O2{%endif%}</span></li>
             <li class="list-group-item">代码长度：<span class="float-right">{{record.code|length}}</span></li>
+            {%if record.pid%}
             <li class="list-group-item">题目：<span class="float-right">{{macros.problemlink_inline(record.pid,proquery)}}</span></li>
+            {%endif%}
+            <li class="list-group-item">题目：<span class="float-right">{{record.rmjname}}:{{record.rmjpid}}</span></li>
             <li class="list-group-item">用户：<span class="float-right">{{macros.userlink_inline(record.uid,uquery)}}</span></li>
         </ul>
     </div>

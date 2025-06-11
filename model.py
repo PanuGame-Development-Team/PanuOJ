@@ -34,6 +34,11 @@ class User(db.Model):
     verify_expireation = db.Column(db.DateTime,nullable=True)
     icon = db.Column(db.String(128),nullable=False,default="/static/usericon.png")
     mainpage = db.Column(db.Text,server_default="这个人很懒，TA的主页一片空白。")
+<<<<<<< HEAD
+    rmjuser = db.Column(db.Text,nullable=False,server_default="{}")
+=======
+    rmjuser = db.Column(db.Text,nullable=False)
+>>>>>>> 1605e82a7143aa0556ea80881789869aed989d74
 class Problem(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     title = db.Column(db.Unicode(64),nullable=False,unique=True,index=True)
@@ -53,10 +58,12 @@ class Problem(db.Model):
 class Record(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     uid = db.Column(db.Integer,db.ForeignKey('user.id'),nullable=False,index=True)
-    pid = db.Column(db.Integer,db.ForeignKey('problem.id'),nullable=False,index=True)
+    pid = db.Column(db.Integer,db.ForeignKey('problem.id'),nullable=True,index=True)
+    rmjname = db.Column(db.String(64))
+    rmjpid = db.Column(db.Text)
     code = db.Column(db.Text,nullable=False)
-    language = db.Column(db.String(10),nullable=False)
-    result = db.Column(db.String(10))
+    language = db.Column(db.String(64),nullable=False)
+    result = db.Column(db.String(64))
     O2 = db.Column(db.Integer,default=0)
     submit_time = db.Column(db.DateTime,default=datetime.now)
     runtime = db.Column(db.Integer)

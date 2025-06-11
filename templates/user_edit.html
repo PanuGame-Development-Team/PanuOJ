@@ -1,6 +1,6 @@
 {%extends '_base.html'%}
 {%block content%}
-<div class="card ml-auto mr-auto mt-3" style="width: 18rem;">
+<div class="card ml-auto mr-auto mt-3" style="width: 36rem;">
     <div class="card-body">
         <form action="" method="post" enctype="multipart/form-data">
             <input type="password" hidden autocomplete="new-password"/>
@@ -12,6 +12,14 @@
                 <label for="password">新密码</label>
                 <input type="password" class="form-control" name="password" placeholder="密码"/>
             </div>
+            <p>以下是REMOTE JUDGE的用户名与密码，如果要使用RMJ请设置正确用户名密码，管理员无法从管理页面查看以下信息。</p>
+            {%for pset in remotejudges.keys()%}
+            <div class="form-group">
+                <label>{{pset}}</label>
+                <input type="text" class="form-control" name="username-{{pset}}" placeholder="用户名" value="{{jsonload(showuser.rmjuser).get(pset)["username"]}}"/>
+                <input type="password" class="form-control" name="password-{{pset}}" placeholder="密码" value="{{jsonload(showuser.rmjuser).get(pset)["password"]}}"/>
+            </div>
+            {%endfor%}
             <div class="form-group">
                 <label for="mainpage">主页内容</label>
                 <textarea class="form-control" name="mainpage" rows="10">{{user.mainpage}}</textarea>
