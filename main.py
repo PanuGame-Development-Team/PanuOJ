@@ -104,24 +104,15 @@ def problem_show(ses,user,pid):
     problemset = request.args.get("problemset","PanuOJ.local")
     if problemset in remotejudges:
         problem,allow_submit = remotejudges[problemset].getproblem(pid)
-<<<<<<< HEAD
         languages = list(remotejudges[problemset].languages)
-=======
->>>>>>> 1605e82a7143aa0556ea80881789869aed989d74
     else:
         problemset = "PanuOJ.local"
         problem = Problem.query.get(pid)
         allow_submit = True
-<<<<<<< HEAD
         languages = LANGUAGES
     if problem and (problem.deleted == 0 or user.access & ACCESS["ADMIN"]):
         discussions = Discussion.query.filter(Discussion.pid==pid).order_by(Discussion.id.desc()).limit(20).all()
         return render_template("problem_show.html",languages=languages,problemset=problemset,allow_submit=allow_submit,problem=problem,discussions=discussions,**default_dict(ses[1],request,user))
-=======
-    if problem and (problem.deleted == 0 or user.access & ACCESS["ADMIN"]):
-        discussions = Discussion.query.filter(Discussion.pid==pid).order_by(Discussion.id.desc()).limit(20).all()
-        return render_template("problem_show.html",problemset=problemset,allow_submit=allow_submit,problem=problem,discussions=discussions,**default_dict(ses[1],request,user))
->>>>>>> 1605e82a7143aa0556ea80881789869aed989d74
     else:
         abort(404)
 @app.route("/problems/random",methods=["GET"])

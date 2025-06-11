@@ -34,11 +34,7 @@ class User(db.Model):
     verify_expireation = db.Column(db.DateTime,nullable=True)
     icon = db.Column(db.String(128),nullable=False,default="/static/usericon.png")
     mainpage = db.Column(db.Text,server_default="这个人很懒，TA的主页一片空白。")
-<<<<<<< HEAD
     rmjuser = db.Column(db.Text,nullable=False,server_default="{}")
-=======
-    rmjuser = db.Column(db.Text,nullable=False)
->>>>>>> 1605e82a7143aa0556ea80881789869aed989d74
 class Problem(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     title = db.Column(db.Unicode(64),nullable=False,unique=True,index=True)

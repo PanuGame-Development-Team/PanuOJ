@@ -34,12 +34,7 @@ class GenuineDriver(RMJDriver):
             "captcha": ""
         })
         if res.status_code == 200:
-<<<<<<< HEAD
             self.session = res.cookies.get("sessionid")
-=======
-            # self.session = res.cookies.get("sessionid")
-            self.session = "ol1lqv34nskekys5lm9re29jo02kzgc4"
->>>>>>> 1605e82a7143aa0556ea80881789869aed989d74
     def login_user(self,username,password):
         res = post(f"{self.scheme}://{self.host}/api/user/login/",data={
             "username": username,
