@@ -41,6 +41,16 @@ SMTP_SERVICE = "smtp.xxxxxxx.com"                      # smtp服务
 SMTP_USER = "xxx@xxxxxxx.com"                          # 开通smtp服务的邮箱
 SMTP_PASSWD = "xxxxxxxxxxxxxxxxxxxxxx"                 # 密钥
 REDIS_DB = 0                                           # redis数据库
+RMJSERVERS = [                                         # RMJ评测机服务器列表
+    {
+        "RMJDriver": "Genuine",
+        "name": "QAOJ",
+        "host": "ojorigin.qdzx.icu",
+        "scheme": "http",
+        "username":"",
+        "password":""
+    }
+]
 ```
 3. 修改 `judgelib.py` 中的 `judgers`，以添加所有稳定评测机。
 4. 创建数据库
