@@ -18,6 +18,7 @@ app.register_blueprint(api_blueprint)
 app.register_blueprint(admin_blueprint)
 app.register_blueprint(discuss_blueprint)
 app.add_template_filter(render_markdown,"render_markdown")
+app.add_template_filter(combine,"combine")
 if __name__ == "__main__" or "gunicorn" in sysmodules:
     for i in judgers:
         judgers[i].init_app(app)
@@ -88,15 +89,23 @@ def login():
 def problems(ses,user):
     curpage = int(request.args.get("page",1))
     problemset = request.args.get("problemset","PanuOJ.local")
+    search = request.args.get("search","")
     if problemset in remotejudges:
-        problems,pagecnt = remotejudges[problemset].getproblemlist(curpage)
+        problems,pagecnt = remotejudges[problemset].getproblemlist(curpage,searchtext=search)
     else:
         problemset = "PanuOJ.local"
-        paginate = Problem.query.filter(Problem.deleted==0).paginate(page=curpage,per_page=30,max_per_page=30)
+        paginate = Problem.query.filter(Problem.deleted==0)
+        if search:
+            for i in search.split(" "):
+                if not i:
+                    continue
+                paginate = paginate.filter(Problem.title.like(f"%{i}%"))
+        paginate = paginate.paginate(page=curpage,per_page=30,max_per_page=30)
         pagecnt = paginate.pages
         problems = paginate.items
     problemsets = ["PanuOJ.local"] + list(remotejudges.keys())
-    return render_template("problems.html",problemset=problemset,curpage=curpage,pagecnt=pagecnt,problems=problems,problemsets=problemsets,**default_dict(ses[1],request,user))
+    suffix = {"problemset":problemset,"search":search}
+    return render_template("problems.html",suffix=suffix,curpage=curpage,pagecnt=pagecnt,problems=problems,problemsets=problemsets,**default_dict(ses[1],request,user))
 @app.route("/problems/<int:pid>",methods=["GET"])
 @app.route("/problems/<int:pid>/",methods=["GET"])
 @ACCESS_REQUIRE_HTML(["VIEW"])

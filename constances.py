@@ -1,6 +1,6 @@
 APP_NAME = "PanuOJ-Frontend"
-APP_VERSION = "3.1.4-250611-RC3"
-APP_VERSYM = "Blooming Earl"
+APP_VERSION = "3.1.5-250612-RC4"
+APP_VERSYM = "Blooming Firefighter"
 CATEGORY = {0:"DEBUG",1:"INFO",2:"SUSPICIOUS",3:"WARNING",4:"ERROR",5:"CRITICAL"}
 S2NCATEGORY = {v:k for k,v in CATEGORY.items()}
 SHOW_COLOR = {0:"secondary",1:"info",2:"warning",3:"warning",4:"danger",5:"danger"}

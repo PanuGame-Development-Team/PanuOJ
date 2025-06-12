@@ -3,11 +3,21 @@
 <ul class="nav nav-pills mb-3">
     {%for set in problemsets%}
     <li class="nav-item">
-        <a class="nav-link{%if set == problemset %} active{%endif%}" href="/problems/?problemset={{set}}">{{set}}</a>
+        <a class="nav-link{%if set == suffix["problemset"] %} active{%endif%}" href="/problems/?problemset={{set}}">{{set}}</a>
     </li>
     {%endfor%}
 </ul>
-{{ macros.pagination_nav("problems",pagecnt,curpage,problemset) }}
+<div class="form-inline mb-3">
+    <input class="form-control mr-2" id="search" placeholder="搜索题目" value="{{suffix["search"]}}">
+    <script>
+        const search = (problemset)=>{
+            let searchtext = $("#search").val();
+            window.location = `/problems/?problemset=${problemset}&search=${searchtext}`;
+        }
+    </script>
+    <button class="btn btn-primary" onclick="search('{{suffix["problemset"]}}')">搜索</button>
+</div>
+{{ macros.pagination_nav("problems",pagecnt,curpage,suffix) }}
 <table class="table table-striped">
     <thead>
         <tr>
@@ -20,8 +30,8 @@
     <tbody>
         {%for problem in problems%}
         <tr>
-            <td><a href="/problems/{{problem.id}}/?problemset={{problemset}}"><font color="#000">{{problem.id}}</font></a></td>
-            <td><a href="/problems/{{problem.id}}/?problemset={{problemset}}"><font color="#000">{{problem.title}}</font></a></td>
+            <td><a href="/problems/{{problem.id}}/?problemset={{suffix["problemset"]}}"><font color="#000">{{problem.id}}</font></a></td>
+            <td><a href="/problems/{{problem.id}}/?problemset={{suffix["problemset"]}}"><font color="#000">{{problem.title}}</font></a></td>
             <td>{{problem.time_limit}}ms / {{problem.memory_limit}}kB</td>
             <td>{{problem.accepted}} / {{problem.submit}}</td>
         </tr>

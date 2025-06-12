@@ -49,3 +49,7 @@ def render_markdown(md):
     mdmodules = ["markdown.extensions.extra","markdown.extensions.codehilite","markdown.extensions.tables","markdown.extensions.toc"]
     mdconfigs = {}
     return _markdown(md,extensions=mdmodules,extension_configs=mdconfigs)
+def combine(dic1,dic2):
+    dicc = dic1.copy()
+    dicc.update(dic2)
+    return dicc
