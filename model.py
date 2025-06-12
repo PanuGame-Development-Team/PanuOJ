@@ -65,6 +65,7 @@ class Record(db.Model):
     runtime = db.Column(db.Integer)
     memory = db.Column(db.Integer)
     detail = db.Column(db.Text)
+    judger = db.Column(db.String(64))
 class Announcement(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     title = db.Column(db.Unicode(64),nullable=False,index=True)

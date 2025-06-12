@@ -315,6 +315,42 @@ def verify(ses,user,token=None):
     else:
         flash("用户已验证。","danger")
         return redirect("/user/%d/"%user.id)
+@app.route("/callback",methods=["POST"])
+@app.route("/callback/",methods=["POST"])
+def callback():
+    try:
+        if not lin(["judger","uuid","id","runtime","memory","detail","result"],request.form):
+            abort(400)
+        judger_id = request.form["judger"]
+        uuid = request.form["uuid"]
+        record:Record = Record.query.get(int(request.form["id"]))
+        if record.judger == judgers[judger_id].id and judgers[judger_id].judger_record_id == record.id and record.result == "WAITING" and judgers[judger_id].uuid == uuid:
+            judgers[judger_id].busy = False
+            judgers[judger_id].judger_record_id = None
+            judgequeue.allocate(judger_id)
+            record.runtime = int(request.form["runtime"])
+            record.memory = int(request.form["memory"])
+            record.detail = dumps(request.form["detail"])
+            if request.form["result"] == "CE":
+                record.result = "CE"
+            else:
+                record.result = "AC"
+                for i in request.form["detail"]:
+                    if i[1] != "AC":
+                        record.result = i[1]
+                        break
+            db.session.add(record)
+            db.session.commit()
+            if record.result == "AC":
+                problem:Problem = Problem.query.get(record.pid)
+                problem.accepted += 1
+                db.session.add(problem)
+                db.session.commit()
+        else:
+            abort(403)
+    except:
+        abort(400)
+    return jsonify({"status":"OK"})
 @app.route("/favicon.ico")
 def favicon():
     return send_from_directory(ospath.join(app.root_path,'static'),'favicon.ico',mimetype='image/jpeg')

@@ -9,13 +9,14 @@ from datetime import timedelta,datetime
 from .core import *
 from .queues import RedisPoolQueue,BasicActivity
 class JudgeActivity(BasicActivity):
-    def __init__(self,id,judger_ip,judger_port,app=None):
+    def __init__(self,id,judger_ip,judger_port,uuid,app=None):
         super().__init__(id)
         self.id = id
         self.judger_ip = judger_ip
         self.judger_port = judger_port
         self.judger_record_id = None
         self.judger_endtime = None
+        self.uuid = uuid
         self.app = app
     def check_available(self):
         if self.error:
@@ -38,6 +39,9 @@ class JudgeActivity(BasicActivity):
         self.judger_record_id = rid
         with self.app.app_context():
             record:Record = Record.query.get(rid)
+            record.judger = self.id
+            db.session.add(record)
+            db.session.commit()
             problem:Problem = Problem.query.get(record.pid)
         self.judger_endtime = datetime.now() + timedelta(seconds=problem.time_limit * problem.testcases / 1000 * 1.5)
         try:
@@ -47,65 +51,17 @@ class JudgeActivity(BasicActivity):
             res = {"status":"ERROR","message":"Judger has some problems to solve."}
             return res
         while self.busy:
-            try:
-                res = get(f"http://{self.judger_ip}:{self.judger_port}/record/{self.judger_record_id}").json()
-            except (ConnectTimeout,ConnectionError):
-                self.available = False
-                sleep(5)
-                continue
-            except:
-                self.error = True
-                res = {"status":"ERROR","message":"Judger has some problems to solve."}
-                return res
-            if res["status"] == "OK":
-                with self.app.app_context():
-                    record:Record = Record.query.get(self.judger_record_id)
-                    record.runtime = int(res["runtime"])
-                    record.memory = int(res["memory"])
-                    record.detail = dumps(res["detail"])
-                    if res["result"] == "CE":
-                        record.result = "CE"
-                    else:
-                        record.result = "AC"
-                        for i in res["detail"]:
-                            if i[1] == "WA":
-                                record.result = "WA"
-                                break
-                            elif i[1] == "RE":
-                                record.result = "RE"
-                                break
-                            elif i[1] == "TLE":
-                                record.result = "TLE"
-                                break
-                            elif i[1] == "MLE":
-                                record.result = "MLE"
-                                break
-                            elif i[1] == "OLE":
-                                record.result = "OLE"
-                                break
-                            elif i[1] == "FE":
-                                record.result = "FE"
-                                break
-                    db.session.add(record)
-                    db.session.commit()
-                    if record.result == "AC":
-                        problem:Problem = Problem.query.get(record.pid)
-                        problem.accepted += 1
-                        db.session.add(problem)
-                        db.session.commit()
-                self.busy = False
-                self.judger_record_id = None
-            elif datetime.now() > self.judger_endtime:
-                with self.app.app_context():
-                    record:Record = Record.query.get(self.judger_record_id)
+            with self.app.app_context():
+                record = Record.query.get(self.judger_record_id)
+                if datetime.now() > self.judger_endtime:
                     record.result = "UKE"
                     db.session.add(record)
                     db.session.commit()
                     self.error = True
-                    syslog(f"Judger {self.id} timeout.",S2NCATEGORY["WARNING"])
-                self.error = True
-                self.judger_record_id = None
-            sleep(0.5)
+                    syslog(f"Judger {self.id} timeout",S2NCATEGORY["WARNING"])
+                    self.judger_record_id = None
+                    break
+            sleep(0.1)
         callback(self.id)
     def event_loop(self,app):
         while True:
